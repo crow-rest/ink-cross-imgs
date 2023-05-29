@@ -102,13 +102,6 @@ ONBUILD RUN <<EOT
     rm -rf /var/lib/apt/lists/*
 EOT
 
-# CC
-ONBUILD RUN <<EOT bash
-    echo '#!/bin/sh' > "$CROSS_TOOLCHAIN_PREFIX"cc \
-      && echo "$CROSS_TOOLCHAIN_PREFIX"gcc' "$@"' > /usr/bin/"$CROSS_TOOLCHAIN_PREFIX"cc \
-      && chmod +x /usr/bin/"$CROSS_TOOLCHAIN_PREFIX"cc
-EOT
-
 # Openssl
 ONBUILD RUN <<EOT
     curl --retry 3 -fsSL "https://www.openssl.org/source/openssl-$OPENSSL_VERSION.tar.gz" -o openssl.tar.gz
@@ -126,6 +119,32 @@ ONBUILD RUN <<EOT
 
     cd /
     rm -rf "/openssl-$OPENSSL_VERSION"
+EOT
+
+# Cargo prebuilt
+RUN <<EOT
+    case "$TARGETARCH" in
+      amd64)
+        curl --retry 3 -fsSL "https://github.com/cargo-prebuilt/cargo-prebuilt/releases/latest/download/x86_64-unknown-linux-gnu.tar.gz" -o x86_64-unknown-linux-gnu.tar.gz
+        curl --retry 3 -fsSL "https://github.com/cargo-prebuilt/cargo-prebuilt/releases/latest/download/x86_64-unknown-linux-gnu.sha256" | sha256sum -c -
+        tar -xzvf x86_64-unknown-linux-gnu.tar.gz -C "$CARGO_HOME/bin"
+        rm -f x86_64-unknown-linux-gnu.tar.gz
+        ;;
+      arm64)
+        curl --retry 3 -fsSL "https://github.com/cargo-prebuilt/cargo-prebuilt/releases/latest/download/aarch64-unknown-linux-gnu.tar.gz" -o aarch64-unknown-linux-gnu.tar.gz
+        curl --retry 3 -fsSL "https://github.com/cargo-prebuilt/cargo-prebuilt/releases/latest/download/aarch64-unknown-linux-gnu.sha256" | sha256sum -c -
+        tar -xzvf aarch64-unknown-linux-gnu.tar.gz -C "$CARGO_HOME/bin"
+        rm -f aarch64-unknown-linux-gnu.tar.gz
+        ;;
+      *)
+        echo "Unsupported Arch: $TARGETARCH" && exit 1
+        ;;
+    esac
+EOT
+
+# Cargo auditable
+RUN <<EOT
+    cargo prebuilt cargo-auditable
 EOT
 
 SHELL ["/bin/sh", "-c"]
