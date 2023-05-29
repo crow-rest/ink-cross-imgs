@@ -15,7 +15,7 @@ ONBUILD ARG GCC_PKGS
 ONBUILD ARG CROSS_TOOLCHAIN
 ONBUILD ARG CROSS_TOOLCHAIN_PREFIX
 
-ONBUILD ARG OPENSSL_VERSION=3.0.8
+ONBUILD ARG OPENSSL_VERSION=3.1.0
 ONBUILD ARG OPENSSL_COMBO
 
 ENV RUSTUP_HOME=/usr/local/rustup
@@ -24,20 +24,6 @@ ENV PATH=/usr/local/cargo/bin:$PATH
 ENV CARGO_REGISTRIES_CRATES_IO_PROTOCOL=sparse
 
 SHELL ["/bin/bash", "-c"]
-
-# RUN <<EOT
-#     apt update
-#     apt upgrade -y
-#     apt install -y --no-install-recommends \
-#         ca-certificates \
-#         curl \
-#         make \
-#         perl \
-#         pkg-config \
-#         git \
-#         gcc
-#     rm -rf /var/lib/apt/lists/*
-# EOT
 
 RUN <<EOT
     apt update
@@ -125,12 +111,6 @@ EOT
 
 # Openssl
 ONBUILD RUN <<EOT
-#   apt update
-#   apt install -y --no-install-recommends \
-#     ca-certificates \
-#     curl \
-#     pkg-config
-
     curl --retry 3 -fsSL "https://www.openssl.org/source/openssl-$OPENSSL_VERSION.tar.gz" -o openssl.tar.gz
     tar -xzf openssl.tar.gz
     rm -f openssl.tar.gz
@@ -146,27 +126,6 @@ ONBUILD RUN <<EOT
 
     cd /
     rm -rf "/openssl-$OPENSSL_VERSION"
-
-#     rm -rf /var/lib/apt/lists/*
 EOT
-
-# Qemu
-# RUN <<EOT
-#     mkdir /qemu-tmp
-#     cd /qemu-tmp
-#     curl --retry 3 -fsSL "https://download.qemu.org/qemu-8.0.0.tar.xz" -O
-#     tar --strip-components=1 -xJf "qemu-8.0.0.tar.xz"
-#     ./configure \
-#         --disable-kvm \
-#         --disable-vnc \
-#         --disable-guest-agent \
-#         --enable-linux-user \
-#         --static \
-#         --target-list="aarch64-linux-user,aarch64-softmmu"
-#     make "-j$(nproc)"
-#     make install
-#     ln -s "/usr/local/bin/qemu-aarch64" "/usr/bin/qemu-aarch64-static"
-#     rm -rf /qemu-temp
-# EOT
 
 SHELL ["/bin/sh", "-c"]
