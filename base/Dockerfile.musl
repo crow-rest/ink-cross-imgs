@@ -11,7 +11,7 @@ ARG RUSTUP_VERSION=1.26.0
 ARG CMAKE_VERSION=3.26.4
 
 ONBUILD ARG GCC_PKGS
-ONBUILD ARG BINUTILS_VERSION=2.39
+ONBUILD ARG BINUTILS_VERSION=2.38
 ONBUILD ARG GCC_VERSION=12.2.0
 ONBUILD ARG MUSL_VERSION=1.2.4
 ONBUILD ARG CROSS_TOOLCHAIN
@@ -46,7 +46,8 @@ RUN <<EOT
       libc-dev \
       musl-dev \
       clang16-libclang \
-      pkgconf
+      pkgconf \
+      patch
 EOT
 
 # Install rust
@@ -113,19 +114,23 @@ ONBUILD RUN <<EOT
 EOT
 
 # Gcc and binutils for musl
-ONBUILD ENV PATH=/usr/$CROSS_TOOLCHAIN/bin:$PATH
+# ONBUILD ENV PATH=/usr/$CROSS_TOOLCHAIN/bin:$PATH
 ONBUILD RUN <<EOT
     git clone --depth=1 https://git.zv.io/toolchains/musl-cross-make.git musl-cross-make
     cd musl-cross-make
+
+    sed -i -e 's/tar Jxvf/tar Jxf/g' Makefile
+    sed -i -e 's/tar jxvf/tar jxf/g' Makefile
+    sed -i -e 's/tar zxvf/tar zxf/g' Makefile
 
     make install "-j$(nproc)" \
       GCC_VER="$GCC_VERSION" \
       MUSL_VER="$MUSL_VERSION" \
       BINUTILS_VER="$BINUTILS_VERSION" \
       DL_CMD='curl --retry 3 -sSfL -C - -o' \
-      LINUX_HEADERS_SITE="https://ci-mirrors.rust-lang.org/rustc/sabotage-linux-tarballs" \
-      OUTPUT=/usr/$CROSS_TOOLCHAIN \
-      'COMMON_CONFIG += CFLAGS="-g0 -O3" CXXFLAGS="-g0 -O3" LDFLAGS="-s"'
+      LINUX_HEADERS_SITE='https://ci-mirrors.rust-lang.org/rustc/sabotage-linux-tarballs' \
+      OUTPUT="/usr/local" \
+      "COMMON_CONFIG += CFLAGS='-g0 -O3' CXXFLAGS='-g0 -O3' LDFLAGS='-s'" \
       "GCC_CONFIG += --enable-default-pie" \
       "TARGET=$CROSS_TOOLCHAIN"
 
@@ -154,24 +159,24 @@ ONBUILD RUN <<EOT
 EOT
 
 # Openssl
-# ONBUILD RUN <<EOT
-#     curl --retry 3 -fsSL "https://www.openssl.org/source/openssl-$OPENSSL_VERSION.tar.gz" -o openssl.tar.gz
-#     tar -xzf openssl.tar.gz
-#     rm -f openssl.tar.gz
-#     cd "/openssl-$OPENSSL_VERSION"
-#
-#     AR="$CROSS_TOOLCHAIN_PREFIX"ar CC="$CROSS_TOOLCHAIN_PREFIX"gcc ./Configure $OPENSSL_COMBO \
-#       --libdir=lib --prefix="/usr/$CROSS_TOOLCHAIN/local" --openssldir="/usr/$CROSS_TOOLCHAIN/local/ssl" \
-#       no-dso no-shared no-ssl3 no-tests no-comp \
-#       no-legacy no-camellia no-idea no-seed \
-#       no-engine no-async
-#     make "-j$(nproc)"
-#     make "-j$(nproc)" install_sw
-#     make "-j$(nproc)" install_ssldirs
-#
-#     cd /
-#     rm -rf "/openssl-$OPENSSL_VERSION"
-# EOT
+ONBUILD RUN <<EOT
+    curl --retry 3 -fsSL "https://www.openssl.org/source/openssl-$OPENSSL_VERSION.tar.gz" -o openssl.tar.gz
+    tar -xzf openssl.tar.gz
+    rm -f openssl.tar.gz
+    cd "/openssl-$OPENSSL_VERSION"
+
+    AR="$CROSS_TOOLCHAIN_PREFIX"ar CC="$CROSS_TOOLCHAIN_PREFIX"gcc ./Configure $OPENSSL_COMBO \
+      --libdir=lib --prefix="/usr/local/$CROSS_TOOLCHAIN" --openssldir="/usr/local/$CROSS_TOOLCHAIN/ssl" \
+      no-dso no-shared no-ssl3 no-tests no-comp \
+      no-legacy no-camellia no-idea no-seed \
+      no-engine no-async
+    make "-j$(nproc)"
+    make "-j$(nproc)" install_sw
+    make "-j$(nproc)" install_ssldirs
+
+    cd /
+    rm -rf "/openssl-$OPENSSL_VERSION"
+EOT
 
 # Cargo prebuilt
 RUN <<EOT

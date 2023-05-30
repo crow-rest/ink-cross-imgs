@@ -110,7 +110,7 @@ ONBUILD RUN <<EOT
     cd "/openssl-$OPENSSL_VERSION"
 
     AR="$CROSS_TOOLCHAIN_PREFIX"ar CC="$CROSS_TOOLCHAIN_PREFIX"gcc ./Configure $OPENSSL_COMBO \
-      --libdir=lib --prefix="/usr/$CROSS_TOOLCHAIN/local" --openssldir="/usr/$CROSS_TOOLCHAIN/local/ssl" \
+      --libdir=lib --prefix="/usr/local/$CROSS_TOOLCHAIN" --openssldir="/usr/local/$CROSS_TOOLCHAIN/ssl" \
       no-dso no-shared no-ssl3 no-tests no-comp \
       no-legacy no-camellia no-idea no-seed
     make "-j$(nproc)"
