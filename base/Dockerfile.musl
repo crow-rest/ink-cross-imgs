@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1
-FROM alpine:3
+FROM alpine:edge
 
 # Do not set
 ARG TARGETARCH
@@ -14,10 +14,11 @@ ONBUILD ARG GCC_PKGS
 ONBUILD ARG BINUTILS_VERSION=2.38
 ONBUILD ARG GCC_VERSION=12.2.0
 ONBUILD ARG MUSL_VERSION=1.2.4
+# ONBUILD ARG LINUX_VERSION=5.4.89
 ONBUILD ARG CROSS_TOOLCHAIN
 ONBUILD ARG CROSS_TOOLCHAIN_PREFIX
 
-ONBUILD ARG OPENSSL_VERSION=3.1.0
+ONBUILD ARG OPENSSL_VERSION=3.1.1
 ONBUILD ARG OPENSSL_COMBO
 
 ENV RUSTUP_HOME=/usr/local/rustup
@@ -47,7 +48,9 @@ RUN <<EOT
       musl-dev \
       clang16-libclang \
       pkgconf \
+      perl \
       patch
+#       linux-headers ???
 EOT
 
 # Install rust
@@ -98,25 +101,10 @@ EOT
 
 COPY toolchain.cmake /opt/toolchain.cmake
 
-# Binutils
-ONBUILD RUN <<EOT
-#     curl --retry 3 -fsSL "https://ftp.gnu.org/gnu/binutils/binutils-$BINUTILS_VERSION.tar.gz" -o binutils.tar.gz
-#     tar -xzf binutils.tar.gz
-#     rm -f binutils.tar.gz
-#
-#     cd "/binutils-$BINUTILS_VERSION"
-#     ./configure --target="$CROSS_TOOLCHAIN" --prefix="/usr/$CROSS_TOOLCHAIN" --with-sysroot --disable-multilib --disable-nls
-#     make "-j$(nproc)"
-#     make "-j$(nproc)" install
-#
-#     cd /
-#     rm -rf "/binutils-$BINUTILS_VERSION"
-EOT
-
 # Gcc and binutils for musl
-# ONBUILD ENV PATH=/usr/$CROSS_TOOLCHAIN/bin:$PATH
+ONBUILD ENV PATH=/usr/local/$CROSS_TOOLCHAIN/bin:$PATH
 ONBUILD RUN <<EOT
-    git clone --depth=1 https://git.zv.io/toolchains/musl-cross-make.git musl-cross-make
+    git clone --depth=1 https://github.com/cargo-prebuilt/musl-cross-make.git musl-cross-make
     cd musl-cross-make
 
     sed -i -e 's/tar Jxvf/tar Jxf/g' Makefile
@@ -129,7 +117,7 @@ ONBUILD RUN <<EOT
       BINUTILS_VER="$BINUTILS_VERSION" \
       DL_CMD='curl --retry 3 -sSfL -C - -o' \
       LINUX_HEADERS_SITE='https://ci-mirrors.rust-lang.org/rustc/sabotage-linux-tarballs' \
-      OUTPUT="/usr/local" \
+      OUTPUT="/usr/local/$CROSS_TOOLCHAIN" \
       "COMMON_CONFIG += CFLAGS='-g0 -O3' CXXFLAGS='-g0 -O3' LDFLAGS='-s'" \
       "GCC_CONFIG += --enable-default-pie" \
       "TARGET=$CROSS_TOOLCHAIN"
@@ -138,9 +126,34 @@ ONBUILD RUN <<EOT
     rm -rf musl-cross-make
 EOT
 
+# Binutils
+# ONBUILD ENV PATH=/usr/$CROSS_TOOLCHAIN/bin:$PATH
+# ONBUILD RUN <<EOT
+#     apk add --no-cache \
+#       binutils-dev \
+#       texinfo \
+#       bison
+#
+#     curl --retry 3 -fsSL "https://ftp.gnu.org/gnu/binutils/binutils-$BINUTILS_VERSION.tar.gz" -o binutils.tar.gz
+#     tar -xzf binutils.tar.gz
+#     rm -f binutils.tar.gz
+#
+#     cd "/binutils-$BINUTILS_VERSION"
+#     ./configure --target="$CROSS_TOOLCHAIN" --prefix="/usr/$CROSS_TOOLCHAIN" --with-sysroot --disable-multilib --disable-nls
+#     make "-j$(nproc)"
+#     make "-j$(nproc)" install
+#
+#     cd /
+#     rm -rf "/binutils-$BINUTILS_VERSION"
+#     apk del --no-cache \
+#       binutils-dev \
+#       texinfo \
+#       bison
+# EOT
+
 # Gcc
-ONBUILD RUN <<EOT
-#     curl --retry 3 -fsSL "https://ftp.gnu.org/gnu/gcc/gcc-12.3.0/gcc-$GCC_VERSION.tar.gz" -o gcc.tar.gz
+# ONBUILD RUN <<EOT
+#     curl --retry 3 -fsSL "https://ftp.gnu.org/gnu/gcc/gcc-$GCC_VERSION/gcc-$GCC_VERSION.tar.gz" -o gcc.tar.gz
 #     tar -xzf gcc.tar.gz
 #     rm -f gcc.tar.gz
 #
@@ -154,11 +167,19 @@ ONBUILD RUN <<EOT
 #
 #     cd /
 #     rm -rf "/gcc-$GCC_VERSION"
-
-#     strip -s /usr/$CROSS_TOOLCHAIN/libexec
-EOT
+# #     strip -s /usr/$CROSS_TOOLCHAIN/libexec
+# EOT
 
 # Openssl
+# ONBUILD RUN <<EOT
+#     export ARCH_BACKUP="$(cat /etc/apk/arch)"
+#     echo "$OPENSSL_ARCH" > /etc/apk/arch
+# #     while read line; do apk add -X "$line" -u alpine-keys --allow-untrusted; done < /etc/apk/repositories
+#     apk add --no-cache --virtual openssl-dev --allow-untrusted
+#     echo "$ARCH_BACKUP" > /etc/apk/arch
+# EOT
+ONBUILD ENV OPENSSL_INCLUDE_DIR=/usr/local/$CROSS_TOOLCHAIN/include
+ONBUILD ENV OPENSSL_LIB_DIR=/usr/local/$CROSS_TOOLCHAIN/lib
 ONBUILD RUN <<EOT
     curl --retry 3 -fsSL "https://www.openssl.org/source/openssl-$OPENSSL_VERSION.tar.gz" -o openssl.tar.gz
     tar -xzf openssl.tar.gz
@@ -168,8 +189,7 @@ ONBUILD RUN <<EOT
     AR="$CROSS_TOOLCHAIN_PREFIX"ar CC="$CROSS_TOOLCHAIN_PREFIX"gcc ./Configure $OPENSSL_COMBO \
       --libdir=lib --prefix="/usr/local/$CROSS_TOOLCHAIN" --openssldir="/usr/local/$CROSS_TOOLCHAIN/ssl" \
       no-dso no-shared no-ssl3 no-tests no-comp \
-      no-legacy no-camellia no-idea no-seed \
-      no-engine no-async
+      no-legacy no-camellia no-idea no-seed
     make "-j$(nproc)"
     make "-j$(nproc)" install_sw
     make "-j$(nproc)" install_ssldirs
