@@ -14,7 +14,6 @@ ONBUILD ARG GCC_PKGS
 ONBUILD ARG BINUTILS_VERSION=2.38
 ONBUILD ARG GCC_VERSION=12.2.0
 ONBUILD ARG MUSL_VERSION=1.2.4
-# ONBUILD ARG LINUX_VERSION=5.4.89
 ONBUILD ARG CROSS_TOOLCHAIN
 ONBUILD ARG CROSS_TOOLCHAIN_PREFIX
 
@@ -50,7 +49,6 @@ RUN <<EOT
       pkgconf \
       perl \
       patch
-#       linux-headers ???
 EOT
 
 # Install rust
@@ -107,10 +105,6 @@ ONBUILD RUN <<EOT
     git clone --depth=1 https://github.com/cargo-prebuilt/musl-cross-make.git musl-cross-make
     cd musl-cross-make
 
-    sed -i -e 's/tar Jxvf/tar Jxf/g' Makefile
-    sed -i -e 's/tar jxvf/tar jxf/g' Makefile
-    sed -i -e 's/tar zxvf/tar zxf/g' Makefile
-
     make install "-j$(nproc)" \
       GCC_VER="$GCC_VERSION" \
       MUSL_VER="$MUSL_VERSION" \
@@ -126,58 +120,7 @@ ONBUILD RUN <<EOT
     rm -rf musl-cross-make
 EOT
 
-# Binutils
-# ONBUILD ENV PATH=/usr/$CROSS_TOOLCHAIN/bin:$PATH
-# ONBUILD RUN <<EOT
-#     apk add --no-cache \
-#       binutils-dev \
-#       texinfo \
-#       bison
-#
-#     curl --retry 3 -fsSL "https://ftp.gnu.org/gnu/binutils/binutils-$BINUTILS_VERSION.tar.gz" -o binutils.tar.gz
-#     tar -xzf binutils.tar.gz
-#     rm -f binutils.tar.gz
-#
-#     cd "/binutils-$BINUTILS_VERSION"
-#     ./configure --target="$CROSS_TOOLCHAIN" --prefix="/usr/$CROSS_TOOLCHAIN" --with-sysroot --disable-multilib --disable-nls
-#     make "-j$(nproc)"
-#     make "-j$(nproc)" install
-#
-#     cd /
-#     rm -rf "/binutils-$BINUTILS_VERSION"
-#     apk del --no-cache \
-#       binutils-dev \
-#       texinfo \
-#       bison
-# EOT
-
-# Gcc
-# ONBUILD RUN <<EOT
-#     curl --retry 3 -fsSL "https://ftp.gnu.org/gnu/gcc/gcc-$GCC_VERSION/gcc-$GCC_VERSION.tar.gz" -o gcc.tar.gz
-#     tar -xzf gcc.tar.gz
-#     rm -f gcc.tar.gz
-#
-#     cd "/gcc-$GCC_VERSION"
-#     ./contrib/download_prerequisites
-#     ./configure --target="$CROSS_TOOLCHAIN" --prefix="/usr/$CROSS_TOOLCHAIN" --disable-multilib --enable-default-pie --disable-nls --disable-bootstrap
-#     make "-j$(nproc)" all-gcc
-#     make "-j$(nproc)" all-target-libgcc
-#     make "-j$(nproc)" install-strip-gcc
-#     make "-j$(nproc)" install-target
-#
-#     cd /
-#     rm -rf "/gcc-$GCC_VERSION"
-# #     strip -s /usr/$CROSS_TOOLCHAIN/libexec
-# EOT
-
 # Openssl
-# ONBUILD RUN <<EOT
-#     export ARCH_BACKUP="$(cat /etc/apk/arch)"
-#     echo "$OPENSSL_ARCH" > /etc/apk/arch
-# #     while read line; do apk add -X "$line" -u alpine-keys --allow-untrusted; done < /etc/apk/repositories
-#     apk add --no-cache --virtual openssl-dev --allow-untrusted
-#     echo "$ARCH_BACKUP" > /etc/apk/arch
-# EOT
 ONBUILD ENV OPENSSL_INCLUDE_DIR=/usr/local/$CROSS_TOOLCHAIN/include
 ONBUILD ENV OPENSSL_LIB_DIR=/usr/local/$CROSS_TOOLCHAIN/lib
 ONBUILD RUN <<EOT
