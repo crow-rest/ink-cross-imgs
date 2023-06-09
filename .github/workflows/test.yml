@@ -111,7 +111,7 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           context: ./
-          file: ./cross/Dockerfile
+          file: ./cross/${{ matrix.target }}.Dockerfile
           pull: false
           tags: cross:${{ matrix.target }}
           outputs: type=docker,dest=/tmp/cross-${{ matrix.target }}.tar
