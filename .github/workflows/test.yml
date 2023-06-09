@@ -110,7 +110,7 @@ jobs:
       - name: Build and push Docker images (amd64)
         uses: docker/build-push-action@v4
         with:
-          context: .
+          context: ./
           file: ./cross/Dockerfile
           pull: false
           tags: cross:${{ matrix.target }}
@@ -149,7 +149,7 @@ jobs:
       - name: Build and push Docker images (arm64)
         uses: docker/build-push-action@v4
         with:
-          context: .
+          context: ./
           file: ./cross/Dockerfile
           pull: false
           tags: cross:${{ matrix.target }}
