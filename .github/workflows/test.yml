@@ -13,9 +13,7 @@ jobs:
       fail-fast: true
       matrix:
         platform: ["amd64", "arm64"]
-        include:
-          - type: gnu
-          - type: musl
+        type: ["gnu", "musl"]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -58,6 +56,7 @@ jobs:
       fail-fast: false
       matrix:
         platform: ["amd64", "arm64"]
+        type: ["gnu", "musl"]
         include:
           - target: x86_64-unknown-linux-gnu
             type: gnu
