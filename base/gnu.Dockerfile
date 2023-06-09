@@ -2,6 +2,7 @@
 FROM debian:unstable-slim
 
 #TODO: Do not hardcode versions
+#TODO: Optimize args
 
 # Do not set
 ARG DEBIAN_FRONTEND=noninteractive
@@ -151,7 +152,7 @@ EOT
 
 # Cargo bins
 RUN <<EOT
-    cargo prebuilt cargo-auditable cargo-quickinstall cargo-binstall
+    cargo prebuilt cargo-auditable,cargo-quickinstall,cargo-binstall
 EOT
 
 SHELL ["/bin/sh", "-c"]

@@ -2,6 +2,7 @@
 FROM alpine:edge
 
 #TODO: Do not hardcode versions
+#TODO: Optimize args
 
 # Do not set
 ARG TARGETARCH
@@ -168,7 +169,7 @@ EOT
 
 # Cargo bins
 RUN <<EOT
-    cargo prebuilt cargo-auditable cargo-quickinstall cargo-binstall
+    cargo prebuilt cargo-auditable,cargo-quickinstall,cargo-binstall
 EOT
 
 SHELL ["/bin/sh", "-c"]

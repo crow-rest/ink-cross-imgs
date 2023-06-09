@@ -45,6 +45,8 @@ jobs:
             org.opencontainers.image.authors="harmless-tech, crow-rest"
           platforms: linux/${{ matrix.platform }}
           builder: ${{ steps.buildx.outputs.name }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
       - name: Upload image
         uses: actions/upload-artifact@v3
         with:
@@ -126,6 +128,8 @@ jobs:
             org.opencontainers.image.authors="harmless-tech, crow-rest"
           platforms: linux/${{ matrix.platform }}
           builder: ${{ steps.buildx.outputs.name }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
       - name: Upload image
         uses: actions/upload-artifact@v3
         with:
