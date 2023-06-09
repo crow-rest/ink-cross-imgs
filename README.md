@@ -1,2 +1,2 @@
 # ink-cross-imgs
-Experminal cross images
+Experimental cross images

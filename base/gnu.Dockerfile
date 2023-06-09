@@ -1,27 +1,31 @@
 # syntax=docker/dockerfile:1
 FROM debian:unstable-slim
 
+#TODO: Do not hardcode versions
+
 # Do not set
 ARG DEBIAN_FRONTEND=noninteractive
 ARG TARGETARCH
 
-ARG RUST_VERSION
+# Shared
+ARG RUST_VERSION=1.70.0
 ONBUILD ARG RUST_TARGET
 ARG RUSTUP_VERSION=1.26.0
 
 ARG CMAKE_VERSION=3.26.4
 
-ONBUILD ARG GCC_PKGS
 ONBUILD ARG CROSS_TOOLCHAIN
 ONBUILD ARG CROSS_TOOLCHAIN_PREFIX
 
 ONBUILD ARG OPENSSL_VERSION=3.1.1
 ONBUILD ARG OPENSSL_COMBO
 
+# Not Shared
+ONBUILD ARG GCC_PKGS
+
 ENV RUSTUP_HOME=/usr/local/rustup
 ENV CARGO_HOME=/usr/local/cargo
 ENV PATH=/usr/local/cargo/bin:$PATH
-ENV CARGO_REGISTRIES_CRATES_IO_PROTOCOL=sparse
 
 SHELL ["/bin/bash", "-c"]
 
@@ -70,6 +74,7 @@ RUN <<EOT
 EOT
 
 # Install rust target
+ONBUILD ENV RUST_TARGET=$RUST_TARGET
 ONBUILD RUN <<EOT
     rustup target add "$RUST_TARGET"
 EOT
@@ -144,9 +149,9 @@ RUN <<EOT
     esac
 EOT
 
-# Cargo auditable
+# Cargo bins
 RUN <<EOT
-    cargo prebuilt cargo-auditable
+    cargo prebuilt cargo-auditable cargo-quickinstall cargo-binstall
 EOT
 
 SHELL ["/bin/sh", "-c"]

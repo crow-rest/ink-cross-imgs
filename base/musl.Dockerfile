@@ -1,29 +1,32 @@
 # syntax=docker/dockerfile:1
 FROM alpine:edge
 
+#TODO: Do not hardcode versions
+
 # Do not set
 ARG TARGETARCH
 
-ARG RUST_VERSION
+# Shared
+ARG RUST_VERSION=1.70.0
 ONBUILD ARG RUST_TARGET
 ARG RUSTUP_VERSION=1.26.0
 
 ARG CMAKE_VERSION=3.26.4
 
-ONBUILD ARG GCC_PKGS
-ONBUILD ARG BINUTILS_VERSION=2.38
-ONBUILD ARG GCC_VERSION=12.2.0
-ONBUILD ARG MUSL_VERSION=1.2.4
 ONBUILD ARG CROSS_TOOLCHAIN
 ONBUILD ARG CROSS_TOOLCHAIN_PREFIX
 
 ONBUILD ARG OPENSSL_VERSION=3.1.1
 ONBUILD ARG OPENSSL_COMBO
 
+# Not Shared
+ONBUILD ARG BINUTILS_VERSION=2.38
+ONBUILD ARG GCC_VERSION=12.2.0
+ONBUILD ARG MUSL_VERSION=1.2.4
+
 ENV RUSTUP_HOME=/usr/local/rustup
 ENV CARGO_HOME=/usr/local/cargo
 ENV PATH=/usr/local/cargo/bin:$PATH
-ENV CARGO_REGISTRIES_CRATES_IO_PROTOCOL=sparse
 
 RUN apk add --no-cache bash
 
@@ -74,6 +77,7 @@ RUN <<EOT
 EOT
 
 # Install rust target
+ONBUILD ENV RUST_TARGET=$RUST_TARGET
 ONBUILD RUN <<EOT
     rustup target add "$RUST_TARGET"
 EOT
@@ -162,9 +166,9 @@ RUN <<EOT
     esac
 EOT
 
-# Cargo auditable
+# Cargo bins
 RUN <<EOT
-    cargo prebuilt cargo-auditable
+    cargo prebuilt cargo-auditable cargo-quickinstall cargo-binstall
 EOT
 
 SHELL ["/bin/sh", "-c"]
