@@ -34,7 +34,7 @@ jobs:
           tags: base-img-${{ matrix.type }}:latest
           outputs: type=docker,dest=/tmp/base-img-${{ matrix.type }}.tar
           labels: |
-            tech.harmless.experimental.name="base-img-${{ matrix.type }}:dev-ga"
+            tech.harmless.experimental.name="base-img-${{ matrix.type }}:latest"
             tech.harmless.experimental.pull_request_build="${{ github.event_name == 'pull_request' }}"
             tech.harmless.experimental.run_number="${{ github.run_number }}"
             tech.harmless.experimental.repo="${{ github.repositoryUrl }}"
@@ -100,10 +100,10 @@ jobs:
         with:
           name: base-img-${{ matrix.type }}-amd64
           path: /tmp
-      - name: Load image (amd64)
-        run: |
-          docker load --input /tmp/base-img-${{ matrix.type }}.tar
-          docker image ls -a
+#      - name: Load image (amd64)
+#        run: |
+#          docker load --input /tmp/base-img-${{ matrix.type }}.tar
+#          docker image ls -a
       - name: Vars
         run: |
           echo "BUILD_DATE=$(date --utc)" >> $GITHUB_ENV
@@ -114,6 +114,7 @@ jobs:
           file: ./cross/${{ matrix.target }}.Dockerfile
           pull: false
           tags: cross:${{ matrix.target }}
+          build-contexts: base-img-${{ matrix.type }}:latest=/tmp/base-img-${{ matrix.type }}.tar
           outputs: type=docker,dest=/tmp/cross-${{ matrix.target }}.tar
           labels: |
             tech.harmless.experimental.name="cross:${{ matrix.target }}"
@@ -139,10 +140,10 @@ jobs:
         with:
           name: base-img-${{ matrix.type }}-arm64
           path: /tmp
-      - name: Load image (amd64)
-        run: |
-          docker load --input /tmp/base-img-${{ matrix.type }}.tar
-          docker image ls -a
+#      - name: Load image (arm64)
+#        run: |
+#          docker load --input /tmp/base-img-${{ matrix.type }}.tar
+#          docker image ls -a
       - name: Vars
         run: |
           echo "BUILD_DATE=$(date --utc)" >> $GITHUB_ENV
@@ -153,6 +154,7 @@ jobs:
           file: ./cross/Dockerfile
           pull: false
           tags: cross:${{ matrix.target }}
+          build-contexts: base-img-${{ matrix.type }}:latest=/tmp/base-img-${{ matrix.type }}.tar
           outputs: type=docker,dest=/tmp/cross-${{ matrix.target }}.tar
           labels: |
             tech.harmless.experimental.name="cross:${{ matrix.target }}"
