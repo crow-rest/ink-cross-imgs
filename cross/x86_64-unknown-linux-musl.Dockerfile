@@ -3,7 +3,7 @@ ARG RUST_TARGET=x86_64-unknown-linux-musl
 ARG CROSS_TOOLCHAIN=x86_64-linux-musl
 ARG CROSS_TOOLCHAIN_PREFIX=x86_64-linux-musl-
 ARG OPENSSL_COMBO=linux-x86_64
-FROM base-img-musl
+FROM base-img-musl:latest
 
 ENV CROSS_TOOLCHAIN_PREFIX=x86_64-linux-musl-
 ENV CROSS_SYSROOT=/usr/x86_64-linux-musl

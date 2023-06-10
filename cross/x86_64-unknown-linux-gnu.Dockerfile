@@ -4,7 +4,7 @@ ARG GCC_PKGS="g++-x86-64-linux-gnu libc6-dev-amd64-cross"
 ARG CROSS_TOOLCHAIN=x86_64-linux-gnu
 ARG CROSS_TOOLCHAIN_PREFIX=x86_64-linux-gnu-
 ARG OPENSSL_COMBO=linux-x86_64
-FROM base-img-gnu
+FROM base-img-gnu:latest
 
 ENV CROSS_TOOLCHAIN_PREFIX=x86_64-linux-gnu-
 ENV CROSS_SYSROOT=/usr/x86_64-linux-gnu

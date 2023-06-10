@@ -31,7 +31,7 @@ jobs:
           context: ./
           file: ./base/${{ matrix.type }}.Dockerfile
           pull: true
-          tags: base-img-${{ matrix.type }}
+          tags: base-img-${{ matrix.type }}:latest
           outputs: type=docker,dest=/tmp/base-img-${{ matrix.type }}.tar
           labels: |
             tech.harmless.experimental.name="base-img-${{ matrix.type }}:dev-ga"
