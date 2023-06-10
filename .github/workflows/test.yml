@@ -114,7 +114,7 @@ jobs:
           file: ./cross/${{ matrix.target }}.Dockerfile
           pull: false
           tags: cross:${{ matrix.target }}
-          build-contexts: base-img-${{ matrix.type }}:latest=/tmp/base-img-${{ matrix.type }}.tar
+          build-contexts: base-img-${{ matrix.type }}:latest=file:///tmp/base-img-${{ matrix.type }}.tar
           outputs: type=docker,dest=/tmp/cross-${{ matrix.target }}.tar
           labels: |
             tech.harmless.experimental.name="cross:${{ matrix.target }}"
