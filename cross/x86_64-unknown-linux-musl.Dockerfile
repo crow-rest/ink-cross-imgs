@@ -15,7 +15,7 @@ ENV CARGO_TARGET_X86_64_UNKNOWN_LINUX_MUSL_LINKER="$CROSS_TOOLCHAIN_PREFIX"gcc \
     BINDGEN_EXTRA_CLANG_ARGS_x86_64_unknown_linux_musl="--sysroot=$CROSS_SYSROOT" \
     RUST_TEST_THREADS=1 \
     PKG_CONFIG_ALLOW_CROSS_x86_64_unknown_linux_musl=true \
-    PKG_CONFIG_PATH="/usr/local/x86_64-linux-musl/lib/pkgconfig/:/usr/lib/x86_64-linux-musl/pkgconfig/:${PKG_CONFIG_PATH}" \
+    PKG_CONFIG_PATH="/usr/local/$CROSS_TOOLCHAIN/lib/pkgconfig/:/usr/lib/$CROSS_TOOLCHAIN/pkgconfig/:${PKG_CONFIG_PATH}" \
     CROSS_CMAKE_SYSTEM_NAME=Linux \
     CROSS_CMAKE_SYSTEM_PROCESSOR=x86_64 \
     CROSS_CMAKE_CRT=musl \
