@@ -4,7 +4,7 @@ FROM debian:latest
 ARG DEBIAN_FRONTEND=noninteractive
 ARG TARGETARCH
 
-ARG CROSS_TOOLCHAIN=x86_64-linux-musl
+ARG CROSS_TOOLCHAIN=x86_64-linux-gnu
 ARG CROSS_TOOLCHAIN_PREFIX="$CROSS_TOOLCHAIN"-
 ARG CROSS_SYSROOT=/usr/"$CROSS_TOOLCHAIN"
 
@@ -13,10 +13,8 @@ ARG CMAKE_VERSION=3.26.4
 ARG RUSTUP_VERSION=1.26.0
 ARG RUST_VERSION=1.70.0
 
-ARG LLVM_TARGET=x86_64-unknown-linux-musl
+ARG LLVM_TARGET=x86_64-unknown-linux-gnu
 ARG LLVM_VERSION=16
-
-ARG MUSL_VERSION=1.2.4
 
 SHELL ["/bin/bash", "-c"]
 
@@ -91,6 +89,15 @@ EOT
 
 RUN rustup target add "$LLVM_TARGET"
 
+# Install glibc
+# TODO: Build from source?
+RUN <<EOT
+    apt update
+    apt install -y --no-install-recommends \
+        g++-x86-64-linux-gnu libc6-dev-amd64-cross
+    rm -rf /var/lib/apt/lists/*
+EOT
+
 # Install clang
 # TODO: Why does the script need to be ran twice?
 RUN <<EOT
@@ -109,7 +116,6 @@ RUN <<EOT
 EOT
 
 # Set Alts for clang
-# TODO: MORE SEE CMAKE TOOLCHAIN FILE
 RUN <<EOT
     update-alternatives --install /usr/bin/clang clang /usr/bin/clang-"$LLVM_VERSION" 100
     update-alternatives --install /usr/bin/cc cc /usr/bin/clang-"$LLVM_VERSION" 100
@@ -143,7 +149,6 @@ RUN <<EOT
 EOT
 
 # Setup clang cross compile
-# TODO: MORE SEE CMAKE TOOLCHAIN FILE
 env PATH=$PATH:$CROSS_SYSROOT/bin
 RUN <<EOT
     mkdir -p "$CROSS_SYSROOT"/bin
@@ -153,7 +158,7 @@ RUN <<EOT
     chmod +x "$CROSS_SYSROOT"/bin/"$CROSS_TOOLCHAIN_PREFIX"clang
     
     echo '#!/bin/sh' > "$CROSS_SYSROOT"/bin/"$CROSS_TOOLCHAIN_PREFIX"clang++
-    echo "exec /usr/bin/clang++ --target=$LLVM_TARGET --sysroot=$CROSS_SYSROOT \"\$@\"" >> "$CROSS_SYSROOT"/bin/"$CROSS_TOOLCHAIN_PREFIX"clang++
+    echo "exec /usr/bin/clang++ --target=$LLVM_TARGET --sysroot=$CROSS_SYSROOT -stdlib=libc++ \"\$@\"" >> "$CROSS_SYSROOT"/bin/"$CROSS_TOOLCHAIN_PREFIX"clang++
     chmod +x "$CROSS_SYSROOT"/bin/"$CROSS_TOOLCHAIN_PREFIX"clang++
     
     echo '#!/bin/sh' > "$CROSS_SYSROOT"/bin/"$CROSS_TOOLCHAIN_PREFIX"ar
@@ -170,25 +175,6 @@ RUN <<EOT
     "$CROSS_TOOLCHAIN_PREFIX"as --version
 EOT
 
-# Install musl
-RUN <<EOT
-    mkdir -p /tmp/musl
-    pushd /tmp/musl
-
-    curl --retry 3 -fsSL https://musl.libc.org/releases/musl-"$MUSL_VERSION".tar.gz -o musl.tar.gz
-    tar -xzvf musl.tar.gz
-    pushd musl-"$MUSL_VERSION"
-    
-    CROSS_COMPILE="$CROSS_TOOLCHAIN" CC="$CROSS_TOOLCHAIN_PREFIX"clang AR="$CROSS_TOOLCHAIN_PREFIX"ar \
-        ./configure --prefix="$CROSS_SYSROOT" --disable-shared
-    make "-j$(nproc)"
-    make "-j$(nproc)" install
-    
-    popd
-    popd
-    rm -rf /tmp/musl
-EOT
-
 # TODO: OpenSSL
 
 SHELL ["/bin/sh", "-c"]
@@ -196,17 +182,17 @@ SHELL ["/bin/sh", "-c"]
 # Cross env vars
 ENV CROSS_TOOLCHAIN_PREFIX=$CROSS_TOOLCHAIN_PREFIX
 ENV CROSS_SYSROOT=$CROSS_SYSROOT
-ENV CARGO_TARGET_X86_64_UNKNOWN_LINUX_MUSL_LINKER="$CROSS_TOOLCHAIN_PREFIX"clang \
-    AR_x86_64_unknown_linux_musl="$CROSS_TOOLCHAIN_PREFIX"ar \
-    CC_x86_64_unknown_linux_musl="$CROSS_TOOLCHAIN_PREFIX"clang \
-    CXX_x86_64_unknown_linux_musl="$CROSS_TOOLCHAIN_PREFIX"clang++ \
-    CMAKE_TOOLCHAIN_FILE_x86_64_unknown_linux_musl=/opt/toolchain.cmake \
-    BINDGEN_EXTRA_CLANG_ARGS_x86_64_unknown_linux_musl="--sysroot=$CROSS_SYSROOT" \
+ENV CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_LINKER="$CROSS_TOOLCHAIN_PREFIX"gcc \
+    AR_x86_64_unknown_linux_gnu="$CROSS_TOOLCHAIN_PREFIX"ar \
+    CC_x86_64_unknown_linux_gnu="$CROSS_TOOLCHAIN_PREFIX"clang \
+    CXX_x86_64_unknown_linux_gnu="$CROSS_TOOLCHAIN_PREFIX"clang++ \
+    CMAKE_TOOLCHAIN_FILE_x86_64_unknown_linux_gnu=/opt/toolchain.cmake \
+    BINDGEN_EXTRA_CLANG_ARGS_x86_64_unknown_linux_gnu="--sysroot=$CROSS_SYSROOT" \
     RUST_TEST_THREADS=1 \
-    PKG_CONFIG_ALLOW_CROSS_x86_64_unknown_linux_musl=true \
-    PKG_CONFIG_PATH="/usr/local/x86_64-linux-musl/lib/pkgconfig/:/usr/lib/x86_64-linux-musl/pkgconfig/:${PKG_CONFIG_PATH}" \
+    PKG_CONFIG_ALLOW_CROSS_x86_64_unknown_linux_gnu=true \
+    PKG_CONFIG_PATH="/usr/local/x86_64-linux-gnu/lib/pkgconfig/:/usr/lib/x86_64-linux-gnu/pkgconfig/:${PKG_CONFIG_PATH}" \
     CROSS_CMAKE_SYSTEM_NAME=Linux \
     CROSS_CMAKE_SYSTEM_PROCESSOR=x86_64 \
-    CROSS_CMAKE_CRT=musl \
+    CROSS_CMAKE_CRT=gnu \
     CROSS_CMAKE_OBJECT_FLAGS="-ffunction-sections -fdata-sections -fPIC -m64" \
     CARGO_BUILD_TARGET=$LLVM_TARGET
