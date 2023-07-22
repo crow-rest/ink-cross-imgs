@@ -33,7 +33,8 @@ RUN <<EOT
         automake \
         make \
         libtool \
-        git
+        git \
+        perl
     rm -rf /var/lib/apt/lists/*
 EOT
 
