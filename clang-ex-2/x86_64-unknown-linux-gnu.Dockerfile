@@ -61,7 +61,7 @@ RUN <<EOT
     rm -f "cmake-$CMAKE_VERSION-linux-$CMAKE_ARCH.sh"
 EOT
 
-COPY toolchain.cmake /opt/toolchain.cmake
+COPY toolchain-gcc.cmake /opt/toolchain.cmake
 
 # Install rust
 ENV RUSTUP_HOME=/usr/local/rustup
@@ -117,9 +117,9 @@ RUN rustup target add "$LLVM_TARGET"
 RUN <<EOT
     apt update
     apt install -y --no-install-recommends \
-        libc6-arm64-cross \
-        libc6-dev-arm64-cross \
-        crossbuild-essential-arm64 \
+        libc6-amd64-cross \
+        libc6-dev-amd64-cross \
+        crossbuild-essential-amd64 \
         g++-x86-64-linux-gnu
     rm -rf /var/lib/apt/lists/*
 EOT
