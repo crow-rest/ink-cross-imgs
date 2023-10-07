@@ -15,7 +15,7 @@ jobs:
         platform: [amd64, arm64]
         include:
           - target: x86_64-unknown-linux-gnu
-          - target: x86_64-unknown-linux-musl
+          # - target: x86_64-unknown-linux-musl
 #          - target: aarch64-unknown-linux-gnu
 #          - target: aarch64-unknown-linux-musl
 #          - target: x86_64-unknown-freebsd
@@ -46,23 +46,24 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@v2
+        uses: docker/setup-qemu-action@v3
       - name: Docker Setup Buildx
         id: buildx
-        uses: docker/setup-buildx-action@v2
+        uses: docker/setup-buildx-action@v3
       - name: Vars
         run: |
           echo "BUILD_DATE=$(date --utc)" >> $GITHUB_ENV
       - name: Build and push Docker images
-        uses: docker/build-push-action@v4
+        uses: docker/build-push-action@v5
         with:
           context: ./
-          file: ./clang-ex/${{ matrix.target }}.Dockerfile
-          pull: false
+          file: ./cross-ink/${{ matrix.target }}.Dockerfile
+          pull: true
+          push: false
           tags: cross:${{ matrix.target }}
           outputs: type=docker,dest=/tmp/cross-${{ matrix.target }}-${{ matrix.platform }}.tar
           labels: |
-            tech.harmless.experimental.name="cross:${{ matrix.target }}"
+            tech.harmless.experimental.name="ink-cross:${{ matrix.target }}"
             tech.harmless.experimental.pull_request_build="${{ github.event_name == 'pull_request' }}"
             tech.harmless.experimental.run_number="${{ github.run_number }}"
             tech.harmless.experimental.repo="${{ github.repositoryUrl }}"
