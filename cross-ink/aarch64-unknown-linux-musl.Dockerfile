@@ -37,7 +37,7 @@ SHELL ["/bin/bash", "-c"]
 RUN <<EOT
     set -euxo pipefail
     apt update
-    apt upgrade -y
+    apt upgrade -y --no-install-recommends
     apt install -y --no-install-recommends \
         ca-certificates \
         curl \
