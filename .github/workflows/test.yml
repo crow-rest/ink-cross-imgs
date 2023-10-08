@@ -93,6 +93,8 @@ jobs:
             -v /home/runner/.rustup/toolchains/stable-x86_64-unknown-linux-gnu:/usr/local/rustup/toolchains/stable-x86_64-unknown-linux-gnu:ro \
             -v /home/runner/.cargo/bin/cargo:/usr/local/cargo/bin/cargo/cargo:ro \
             -v ./:/project \
-            cross:${{ matrix.target }}
+            --entrypoint /bin/sh \
+            cross:${{ matrix.target }} \
+            -c cargo build
 
           file ./target/${{ matrix.target }}/debug/cargo-prebuilt
