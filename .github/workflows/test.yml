@@ -78,3 +78,20 @@ jobs:
         with:
           name: cross-${{ matrix.target }}-${{ matrix.platform }}
           path: /tmp/cross-${{ matrix.target }}-${{ matrix.platform }}.tar
+
+      - name: Test
+        if: ${{ matrix.platform == 'amd64'}}
+        run: |
+          rustup update
+          rustup target add ${{ matrix.target }}
+
+          git clone https://github.com/cargo-prebuilt/cargo-prebuilt
+          cd cargo-prebuilt
+
+          docker run --rm --pull=never \
+            -v /home/runner/.rustup/toolchains/stable-x86_64-unknown-linux-gnu:/usr/local/rustup/toolchains/stable-x86_64-unknown-linux-gnu:ro \
+            -v /home/runner/.cargo/bin/cargo:/usr/local/cargo/bin/cargo/cargo:ro \
+            -v ./:/project \
+            cross:${{ matrix.target }}
+
+          file ./target/${{ matrix.target }}/debug/cargo-prebuilt
