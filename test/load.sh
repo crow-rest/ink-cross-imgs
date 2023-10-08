@@ -17,5 +17,5 @@ targets=(
 # Load images
 for t in "${targets[@]}"
 do
-    docker load -i cross-$t-amd64.tar
+    docker load -i cross-$t-amd64/cross-$t-amd64.tar
 done
