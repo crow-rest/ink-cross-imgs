@@ -92,12 +92,10 @@ jobs:
           git clone https://github.com/cargo-prebuilt/cargo-prebuilt
           cd cargo-prebuilt
 
-          docker run --rm --pull=never --user 1001:127 \
-            -v /home/runner/.rustup/toolchains/stable-x86_64-unknown-linux-gnu:/usr/local/rustup/toolchains/stable-x86_64-unknown-linux-gnu:z,ro \
-            -v /home/runner/.cargo/bin/cargo:/usr/local/cargo/bin/cargo/cargo:z \
+          docker run --rm --pull=never \
             -v ./:/project \
             --entrypoint /bin/sh \
             cross:${{ matrix.target }} \
-            -c cargo build
+            -c rustup update && cargo build
 
           file ./target/${{ matrix.target }}/debug/cargo-prebuilt

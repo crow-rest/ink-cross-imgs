@@ -8,7 +8,7 @@ ARG EXT_CURL_CMD="curl --retry 3 -fsSL"
 ARG DEBIAN_FRONTEND=noninteractive
 ARG TARGETARCH
 
-ARG RUST_VERSION=1.73.0
+ARG RUST_VERSION=stable
 ARG RUST_TARGET=x86_64-unknown-linux-musl
 ARG RUSTUP_VERSION=1.26.0
 
@@ -54,39 +54,39 @@ RUN <<EOT
 EOT
 
 # Install rust
-# RUN <<EOT
-#     set -euxo pipefail
-#     mkdir -p /tmp/rustup
-#     pushd /tmp/rustup
+RUN <<EOT
+    set -euxo pipefail
+    mkdir -p /tmp/rustup
+    pushd /tmp/rustup
 
-#     case "$TARGETARCH" in
-#       amd64)
-#         export RUSTUP_ARCH="x86_64-unknown-linux-gnu"
-#         ;;
-#       arm64)
-#         export RUSTUP_ARCH="aarch64-unknown-linux-gnu"
-#         ;;
-#       *)
-#         echo "Unsupported Arch: $TARGETARCH" && exit 1
-#         ;;
-#     esac
-#     mkdir -p "target/$RUSTUP_ARCH/release"
-#     $EXT_CURL_CMD "https://static.rust-lang.org/rustup/archive/$RUSTUP_VERSION/$RUSTUP_ARCH/rustup-init" -o "target/$RUSTUP_ARCH/release/rustup-init"
-#     $EXT_CURL_CMD "https://static.rust-lang.org/rustup/archive/$RUSTUP_VERSION/$RUSTUP_ARCH/rustup-init.sha256" | sha256sum -c -
-#     chmod +x "target/$RUSTUP_ARCH/release/rustup-init"
-#     ./"target/$RUSTUP_ARCH/release/rustup-init" -y --no-modify-path --profile minimal --default-toolchain $RUST_VERSION --default-host $RUSTUP_ARCH
-#     chmod -R a+w $RUSTUP_HOME $CARGO_HOME
+    case "$TARGETARCH" in
+      amd64)
+        export RUSTUP_ARCH="x86_64-unknown-linux-gnu"
+        ;;
+      arm64)
+        export RUSTUP_ARCH="aarch64-unknown-linux-gnu"
+        ;;
+      *)
+        echo "Unsupported Arch: $TARGETARCH" && exit 1
+        ;;
+    esac
+    mkdir -p "target/$RUSTUP_ARCH/release"
+    $EXT_CURL_CMD "https://static.rust-lang.org/rustup/archive/$RUSTUP_VERSION/$RUSTUP_ARCH/rustup-init" -o "target/$RUSTUP_ARCH/release/rustup-init"
+    $EXT_CURL_CMD "https://static.rust-lang.org/rustup/archive/$RUSTUP_VERSION/$RUSTUP_ARCH/rustup-init.sha256" | sha256sum -c -
+    chmod +x "target/$RUSTUP_ARCH/release/rustup-init"
+    ./"target/$RUSTUP_ARCH/release/rustup-init" -y --no-modify-path --profile minimal --default-toolchain $RUST_VERSION --default-host $RUSTUP_ARCH
+    chmod -R a+w $RUSTUP_HOME $CARGO_HOME
 
-#     popd
-#     rm -rf /tmp/rustup
-# EOT
+    popd
+    rm -rf /tmp/rustup
+EOT
 
 # Install rust target
 ENV RUST_TARGET=$RUST_TARGET
-# RUN <<EOT
-#     set -euxo pipefail
-#     rustup target add "$RUST_TARGET"
-# EOT
+RUN <<EOT
+    set -euxo pipefail
+    rustup target add "$RUST_TARGET"
+EOT
 
 # CMake
 RUN <<EOT
@@ -301,7 +301,7 @@ EOT
 # Cargo bins
 RUN <<EOT
     set -euxo pipefail
-    cargo-prebuilt cargo-auditable,cargo-quickinstall,cargo-binstall
+    cargo prebuilt cargo-auditable,cargo-quickinstall,cargo-binstall
 EOT
 
 ENV CROSS_TOOLCHAIN_PREFIX=$CROSS_TOOLCHAIN_PREFIX
