@@ -13,7 +13,8 @@ jobs:
       fail-fast: false
       matrix:
         platform: [amd64, arm64]
-        target: 
+        target:
+          - riscv64gc-unknown-linux-musl
           - x86_64-unknown-linux-gnu
           - x86_64-unknown-linux-musl
         # include:

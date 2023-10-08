@@ -4,21 +4,22 @@ FROM debian:stable-slim
 # Build CMDS
 ARG EXT_CURL_CMD="curl --retry 3 -fsSL"
 
+# Updatable
+ARG RUSTUP_VERSION=1.26.0
+ARG CMAKE_VERSION=3.27.7
+ARG OPENSSL_VERSION=3.1.3
+
 # Do not set
 ARG DEBIAN_FRONTEND=noninteractive
 ARG TARGETARCH
 
 ARG RUST_VERSION=stable
 ARG RUST_TARGET=x86_64-unknown-linux-gnu
-ARG RUSTUP_VERSION=1.26.0
-
-ARG CMAKE_VERSION=3.27.7
 
 ARG CROSS_TOOLCHAIN=x86_64-linux-gnu
 ARG CROSS_TOOLCHAIN_PREFIX="$CROSS_TOOLCHAIN"-
 ARG CROSS_SYSROOT=/usr/"$CROSS_TOOLCHAIN"
 
-ARG OPENSSL_VERSION=3.1.3
 ARG OPENSSL_COMBO=linux-x86_64
 
 ARG GCC_PKGS="g++-x86-64-linux-gnu libc6-dev-amd64-cross"
@@ -196,5 +197,5 @@ ENV CARGO_BUILD_TARGET=$RUST_TARGET\
     CARGO_TERM_COLOR=always
 
 WORKDIR /project
-ENTRYPOINT [ "cargo" ]
+ENTRYPOINT [ "cargo", "+stable" ]
 CMD [ "auditable", "build" ]
