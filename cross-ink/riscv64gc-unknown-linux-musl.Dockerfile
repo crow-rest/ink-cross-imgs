@@ -324,5 +324,5 @@ ENV CARGO_BUILD_TARGET=$RUST_TARGET\
     CARGO_TERM_COLOR=always
 
 WORKDIR /project
-ENTRYPOINT [ "cargo", "+nightly", "-Z" "build-std" ]
-CMD [ "auditable", "build" ]
+ENTRYPOINT [ "cargo", "+nightly" ]
+CMD [ "auditable", "build", "-Zbuild-std" ]
