@@ -49,39 +49,39 @@ RUN <<EOT
 EOT
 
 # Install rust
-RUN <<EOT
-    set -euxo pipefail
-    mkdir -p /tmp/rustup
-    pushd /tmp/rustup
+# RUN <<EOT
+#     set -euxo pipefail
+#     mkdir -p /tmp/rustup
+#     pushd /tmp/rustup
 
-    case "$TARGETARCH" in
-      amd64)
-        export RUSTUP_ARCH="x86_64-unknown-linux-gnu"
-        ;;
-      arm64)
-        export RUSTUP_ARCH="aarch64-unknown-linux-gnu"
-        ;;
-      *)
-        echo "Unsupported Arch: $TARGETARCH" && exit 1
-        ;;
-    esac
-    mkdir -p "target/$RUSTUP_ARCH/release"
-    $EXT_CURL_CMD "https://static.rust-lang.org/rustup/archive/$RUSTUP_VERSION/$RUSTUP_ARCH/rustup-init" -o "target/$RUSTUP_ARCH/release/rustup-init"
-    $EXT_CURL_CMD "https://static.rust-lang.org/rustup/archive/$RUSTUP_VERSION/$RUSTUP_ARCH/rustup-init.sha256" | sha256sum -c -
-    chmod +x "target/$RUSTUP_ARCH/release/rustup-init"
-    ./"target/$RUSTUP_ARCH/release/rustup-init" -y --no-modify-path --profile minimal --default-toolchain $RUST_VERSION --default-host $RUSTUP_ARCH
-    chmod -R a+w $RUSTUP_HOME $CARGO_HOME
+#     case "$TARGETARCH" in
+#       amd64)
+#         export RUSTUP_ARCH="x86_64-unknown-linux-gnu"
+#         ;;
+#       arm64)
+#         export RUSTUP_ARCH="aarch64-unknown-linux-gnu"
+#         ;;
+#       *)
+#         echo "Unsupported Arch: $TARGETARCH" && exit 1
+#         ;;
+#     esac
+#     mkdir -p "target/$RUSTUP_ARCH/release"
+#     $EXT_CURL_CMD "https://static.rust-lang.org/rustup/archive/$RUSTUP_VERSION/$RUSTUP_ARCH/rustup-init" -o "target/$RUSTUP_ARCH/release/rustup-init"
+#     $EXT_CURL_CMD "https://static.rust-lang.org/rustup/archive/$RUSTUP_VERSION/$RUSTUP_ARCH/rustup-init.sha256" | sha256sum -c -
+#     chmod +x "target/$RUSTUP_ARCH/release/rustup-init"
+#     ./"target/$RUSTUP_ARCH/release/rustup-init" -y --no-modify-path --profile minimal --default-toolchain $RUST_VERSION --default-host $RUSTUP_ARCH
+#     chmod -R a+w $RUSTUP_HOME $CARGO_HOME
 
-    popd
-    rm -rf /tmp/rustup
-EOT
+#     popd
+#     rm -rf /tmp/rustup
+# EOT
 
 # Install rust target
 ENV RUST_TARGET=$RUST_TARGET
-RUN <<EOT
-    set -euxo pipefail
-    rustup target add "$RUST_TARGET"
-EOT
+# RUN <<EOT
+#     set -euxo pipefail
+#     rustup target add "$RUST_TARGET"
+# EOT
 
 # CMake
 RUN <<EOT
@@ -149,6 +149,7 @@ RUN <<EOT
     mkdir -p /tmp/prebuilt
     pushd /tmp/prebuilt
 
+    mkdir -p "$CARGO_HOME"/bin
     case "$TARGETARCH" in
       amd64)
         $EXT_CURL_CMD "https://github.com/cargo-prebuilt/cargo-prebuilt/releases/latest/download/x86_64-unknown-linux-musl.tar.gz" -o x86_64-unknown-linux-musl.tar.gz
@@ -172,7 +173,7 @@ EOT
 # Cargo bins
 RUN <<EOT
     set -euxo pipefail
-    cargo prebuilt cargo-auditable,cargo-quickinstall,cargo-binstall
+    cargo-prebuilt cargo-auditable,cargo-quickinstall,cargo-binstall
 EOT
 
 ENV CROSS_TOOLCHAIN_PREFIX=$CROSS_TOOLCHAIN_PREFIX

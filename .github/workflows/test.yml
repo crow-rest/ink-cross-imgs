@@ -62,7 +62,8 @@ jobs:
           pull: true
           push: false
           tags: cross:${{ matrix.target }}
-          outputs: type=docker,dest=/tmp/cross-${{ matrix.target }}-${{ matrix.platform }}.tar
+          # outputs: type=docker,dest=/tmp/cross-${{ matrix.target }}-${{ matrix.platform }}.tar
+          load: true
           labels: |
             tech.harmless.experimental.name="ink-cross:${{ matrix.target }}"
             tech.harmless.experimental.pull_request_build="${{ github.event_name == 'pull_request' }}"
@@ -73,11 +74,11 @@ jobs:
             org.opencontainers.image.authors="harmless-tech, crow-rest"
           platforms: linux/${{ matrix.platform }}
           builder: ${{ steps.buildx.outputs.name }}
-      - name: Upload image
-        uses: actions/upload-artifact@v3
-        with:
-          name: cross-${{ matrix.target }}-${{ matrix.platform }}
-          path: /tmp/cross-${{ matrix.target }}-${{ matrix.platform }}.tar
+      # - name: Upload image
+      #   uses: actions/upload-artifact@v3
+      #   with:
+      #     name: cross-${{ matrix.target }}-${{ matrix.platform }}
+      #     path: /tmp/cross-${{ matrix.target }}-${{ matrix.platform }}.tar
 
       - name: Test
         if: ${{ matrix.platform == 'amd64'}}
