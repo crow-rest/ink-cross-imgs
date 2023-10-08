@@ -14,6 +14,8 @@ jobs:
       matrix:
         platform: [amd64, arm64]
         target:
+          - aarch64-unknown-linux-gnu
+          - aarch64-unknown-linux-musl
           - riscv64gc-unknown-linux-gnu
           # - riscv64gc-unknown-linux-musl
           - s390x-unknown-linux-gnu
@@ -91,11 +93,5 @@ jobs:
         run: |
           git clone https://github.com/cargo-prebuilt/cargo-prebuilt
           cd cargo-prebuilt
-
-          docker run --rm --pull=never \
-            -v ./:/project \
-            --entrypoint /bin/sh \
-            cross:${{ matrix.target }} \
-            -c rustup update && cargo build
-
+          docker run --rm --pull=never -v ./:/project cross:${{ matrix.target }}
           file ./target/${{ matrix.target }}/debug/cargo-prebuilt

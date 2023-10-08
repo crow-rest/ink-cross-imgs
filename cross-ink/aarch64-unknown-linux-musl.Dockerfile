@@ -1,8 +1,6 @@
 # syntax=docker/dockerfile:1
 FROM debian:stable-slim
 
-### TODO: Broken linking
-
 # Build CMDS
 ARG EXT_CURL_CMD="curl --retry 3 -fsSL"
 
@@ -17,18 +15,18 @@ ARG MUSL_VERSION=1.2.4
 ARG DEBIAN_FRONTEND=noninteractive
 ARG TARGETARCH
 
-ARG RUST_VERSION=nightly
-ARG RUST_TARGET=riscv64gc-unknown-linux-musl
+ARG RUST_VERSION=stable
+ARG RUST_TARGET=aarch64-unknown-linux-musl
 
-ARG CROSS_TOOLCHAIN=riscv64-linux-musl
+ARG CROSS_TOOLCHAIN=aarch64-linux-musl
 ARG CROSS_TOOLCHAIN_PREFIX="$CROSS_TOOLCHAIN"-
 ARG CROSS_SYSROOT=/usr/"$CROSS_TOOLCHAIN"
 
-ARG OPENSSL_COMBO=linux-generic64
+ARG OPENSSL_COMBO=linux-aarch64
 
-ARG GCC_PKGS="libgcc-12-dev-riscv64-cross"
+ARG GCC_PKGS="libgcc-12-dev-arm64-cross"
 
-ARG LLVM_TARGET=riscv64-unknown-linux-musl
+ARG LLVM_TARGET=$RUST_TARGET
 
 ENV RUSTUP_HOME=/usr/local/rustup
 ENV CARGO_HOME=/usr/local/cargo
@@ -83,11 +81,11 @@ RUN <<EOT
     rm -rf /tmp/rustup
 EOT
 
-# Install rust src
+# Install rust target
 ENV RUST_TARGET=$RUST_TARGET
 RUN <<EOT
     set -euxo pipefail
-    rustup component add rust-src --toolchain $RUST_VERSION
+    rustup target add "$RUST_TARGET"
 EOT
 
 # CMake
@@ -308,23 +306,23 @@ EOT
 
 ENV CROSS_TOOLCHAIN_PREFIX=$CROSS_TOOLCHAIN_PREFIX
 ENV CROSS_SYSROOT=$CROSS_SYSROOT
-ENV CARGO_TARGET_RISCV64GC_UNKNOWN_LINUX_MUSL_LINKER="$CROSS_TOOLCHAIN_PREFIX"clang \
-    AR_riscv64gc_unknown_linux_musl="$CROSS_TOOLCHAIN_PREFIX"ar \
-    CC_riscv64gc_unknown_linux_musl="$CROSS_TOOLCHAIN_PREFIX"clang \
-    CXX_riscv64gc_unknown_linux_musl="$CROSS_TOOLCHAIN_PREFIX"clang++ \
-    CMAKE_TOOLCHAIN_FILE_riscv64gc_unknown_linux_musl=/opt/toolchain.cmake \
-    BINDGEN_EXTRA_CLANG_ARGS_riscv64gc_unknown_linux_musl="--sysroot=$CROSS_SYSROOT" \
+ENV CARGO_TARGET_AARCH64_UNKNOWN_LINUX_MUSL_LINKER="$CROSS_TOOLCHAIN_PREFIX"clang \
+    AR_aarch64_unknown_linux_musl="$CROSS_TOOLCHAIN_PREFIX"ar \
+    CC_aarch64_unknown_linux_musl="$CROSS_TOOLCHAIN_PREFIX"clang \
+    CXX_aarch64_unknown_linux_musl="$CROSS_TOOLCHAIN_PREFIX"clang++ \
+    CMAKE_TOOLCHAIN_FILE_aarch64_unknown_linux_musl=/opt/toolchain.cmake \
+    BINDGEN_EXTRA_CLANG_ARGS_aarch64_unknown_linux_musl="--sysroot=$CROSS_SYSROOT" \
     RUST_TEST_THREADS=1 \
-    PKG_CONFIG_ALLOW_CROSS_riscv64gc_unknown_linux_musl=true \
+    PKG_CONFIG_ALLOW_CROSS_aarch64_unknown_linux_musl=true \
     PKG_CONFIG_PATH="/usr/local/$CROSS_TOOLCHAIN/lib/pkgconfig/:/usr/lib/$CROSS_TOOLCHAIN/pkgconfig/:${PKG_CONFIG_PATH}" \
     CROSS_CMAKE_SYSTEM_NAME=Linux \
-    CROSS_CMAKE_SYSTEM_PROCESSOR=riscv64 \
+    CROSS_CMAKE_SYSTEM_PROCESSOR=aarch64 \
     CROSS_CMAKE_CRT=musl \
-    CROSS_CMAKE_OBJECT_FLAGS="-ffunction-sections -fdata-sections -fPIC -march=rv64gc -mabi=lp64d -mcmodel=medany"
+    CROSS_CMAKE_OBJECT_FLAGS="-ffunction-sections -fdata-sections -fPIC"
 
 ENV CARGO_BUILD_TARGET=$RUST_TARGET\
     CARGO_TERM_COLOR=always
 
 WORKDIR /project
-ENTRYPOINT [ "cargo", "+nightly" ]
-CMD [ "auditable", "build", "-Zbuild-std" ]
+ENTRYPOINT [ "cargo", "+stable" ]
+CMD [ "auditable", "build" ]
