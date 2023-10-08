@@ -182,8 +182,6 @@ jobs:
         with:
           python-version: "3.11"
       - uses: actions/download-artifact@v3
-      - name: Bring images
-        run: ./test/load.sh
-      - name: Test
+      - name: Run
         run: python3 ./test/run.py
       

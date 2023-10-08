@@ -59,10 +59,16 @@ def main(filename):
     final_linux_flags += linux_flags[2]
 
     for t in targets:
+        # Load image
+        subprocess.run(["docker", "load", "-i", f"cross-{t}-amd64/cross-{t}-amd64.tar"]).check_returncode()
+
         sub = subprocess.run(["docker", "run", "--rm", "--pull=never", "-v", "./build:/project", f"cross:{t}", final_linux_flags])
         if "GITHUB_STEP_SUMMARY" in os.environ:
             with open(os.environ["GITHUB_STEP_SUMMARY"], "a") as f :
                 print(f"{t}: {sub.returncode}", file=f)
+
+        # Purge
+        subprocess.run(["docker", "system", "prune", "--all"]).check_returncode()
 
 
 if __name__ == "__main__":
