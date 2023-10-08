@@ -18,22 +18,19 @@ jobs:
           - aarch64-unknown-linux-musl
           - armv7-unknown-linux-gnueabihf
           - armv7-unknown-linux-musleabihf
+          - powerpc64le-unknown-linux-gnu
           - riscv64gc-unknown-linux-gnu
           # - riscv64gc-unknown-linux-musl
           - s390x-unknown-linux-gnu
           - x86_64-unknown-linux-gnu
           - x86_64-unknown-linux-musl
         # include:
-#          - target: aarch64-unknown-linux-gnu
-#          - target: aarch64-unknown-linux-musl
 #          - target: x86_64-unknown-freebsd
 #          - target: x86_64-unknown-netbsd
 #          - target: x86_64-unknown-illumos
 #          - target: x86_64-sun-solaris
-#          - target: riscv64gc-unknown-linux-gnu
 #          - target: powerpc64-unknown-linux-gnu
 #          - target: powerpc64le-unknown-linux-gnu
-#          - target: s390x-unknown-linux-gnu
 #          - target: mips64-unknown-linux-gnuabi64
 #          - target: mips64-unknown-linux-muslabi64
 #          - target: mips64el-unknown-linux-gnuabi64
@@ -41,8 +38,6 @@ jobs:
 #          - target: i686-unknown-linux-gnu
 #          - target: i686-unknown-linux-musl
 #          - target: i686-unknown-freebsd
-#          - target: armv7-unknown-linux-gnueabihf
-#          - target: armv7-unknown-linux-musleabihf
 #          - target: powerpc-unknown-linux-gnu
 #          - target: mips-unknown-linux-gnu
 #          - target: mips-unknown-linux-musl
