@@ -59,7 +59,9 @@ jobs:
         with:
           context: ./
           file: ./cross-ink/${{ matrix.target }}.Dockerfile
-          no-cache: true
+          # no-cache: true
+          cache-to: type=gha
+          cache-from: type=gha
           pull: true
           push: false
           tags: cross:${{ matrix.target }}
@@ -90,7 +92,7 @@ jobs:
           git clone https://github.com/cargo-prebuilt/cargo-prebuilt
           cd cargo-prebuilt
 
-          docker run --rm --pull=never \
+          docker run --rm --pull=never --user 1001:127 \
             -v /home/runner/.rustup/toolchains/stable-x86_64-unknown-linux-gnu:/usr/local/rustup/toolchains/stable-x86_64-unknown-linux-gnu:z,ro \
             -v /home/runner/.cargo/bin/cargo:/usr/local/cargo/bin/cargo/cargo:z \
             -v ./:/project \
