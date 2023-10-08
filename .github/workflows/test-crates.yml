@@ -1,0 +1,189 @@
+name: Test images
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  cross:
+    strategy:
+      fail-fast: false
+      matrix:
+        platform: [ amd64 ]
+        target:
+          - aarch64-unknown-linux-gnu
+          - aarch64-unknown-linux-musl
+          - armv7-unknown-linux-gnueabihf
+          - armv7-unknown-linux-musleabihf
+          - powerpc64le-unknown-linux-gnu
+          - riscv64gc-unknown-linux-gnu
+          - s390x-unknown-linux-gnu
+          - x86_64-unknown-linux-gnu
+          - x86_64-unknown-linux-musl
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+      - name: Docker Setup Buildx
+        id: buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Vars
+        run: |
+          echo "BUILD_DATE=$(date --utc)" >> $GITHUB_ENV
+      - name: Build and push Docker images
+        uses: docker/build-push-action@v5
+        with:
+          context: ./
+          file: ./cross-ink/${{ matrix.target }}.Dockerfile
+          no-cache: true
+          pull: true
+          push: false
+          tags: cross:${{ matrix.target }}
+          outputs: type=docker,dest=/tmp/cross-${{ matrix.target }}-${{ matrix.platform }}.tar
+          labels: |
+            tech.harmless.experimental.name="ink-cross:${{ matrix.target }}"
+            tech.harmless.experimental.pull_request_build="${{ github.event_name == 'pull_request' }}"
+            tech.harmless.experimental.run_number="${{ github.run_number }}"
+            tech.harmless.experimental.repo="${{ github.repositoryUrl }}"
+            tech.harmless.experimental.build_date="${{ env.BUILD_DATE }}"
+            tech.harmless.experimental.platform="${{ matrix.platform }}"
+            org.opencontainers.image.authors="harmless-tech, crow-rest"
+          platforms: linux/${{ matrix.platform }}
+          builder: ${{ steps.buildx.outputs.name }}
+      - name: Upload image
+        uses: actions/upload-artifact@v3
+        with:
+          name: cross-${{ matrix.target }}-${{ matrix.platform }}
+          path: /tmp/cross-${{ matrix.target }}-${{ matrix.platform }}.tar
+  
+  # Download docker images and run them through all crates
+  test-cross:
+    strategy:
+      fail-fast: false
+      matrix:
+        crate:
+          - cocogitti.toml
+          - bacon.toml
+          - coreutils.toml
+          - bandwhich.toml
+          - cross.toml
+          - bat.toml
+          - deepl-api.toml
+          - bindgen-cli.toml
+          - difftastic.toml
+          - blob-dl.toml
+          - discord-rpc-helper.toml
+          - bob-nvim.toml
+          - du-dust.toml
+          - cargo-asm.toml
+          - erdtree.toml
+          - cargo-audit.toml
+          - evcxr_jupyter.toml
+          - cargo-auditable.toml
+          - exa.toml
+          - cargo-benchcmp.toml
+          - flamegraph.toml
+          - cargo-binstall.toml
+          - gitoxide.toml
+          - cargo-bitbake.toml
+          - gitui.toml
+          - cargo-bloat.toml
+          - grcov.toml
+          - cargo-bom.toml
+          - hexyl.toml
+          - cargo-build-deps.toml
+          - httm.toml
+          - cargo-cache.toml
+          - hyperfine.toml
+          - cargo-careful.toml
+          - irust.toml
+          - cargo-clone.toml
+          - jql.toml
+          - cargo-deadlinks.toml
+          - just.toml
+          - cargo-deb.toml
+          - jxl-oxide-cli.toml
+          - cargo-deny.toml
+          - matrix-commander.toml
+          - cargo-depgraph.toml
+          - nu.toml
+          - cargo-diet.toml
+          - oha.toml
+          - cargo-edit.toml
+          - oxipng.toml
+          - cargo-expand.toml
+          - railwayapp.toml
+          - cargo-generate.toml
+          - ripgrep.toml
+          - cargo-get.toml
+          - rsign2.toml
+          - cargo-hack.toml
+          - rtx-cli.toml
+          - cargo-info.toml
+          - rust-script.toml
+          - cargo-intraconv.toml
+          - rustic-rs.toml
+          - cargo-license.toml
+          - rustypaste-cli.toml
+          - cargo-llvm-lines.toml
+          - rustypaste.toml
+          - cargo-local-registry.toml
+          - sccache.toml
+          - cargo-make.toml
+          - spacedisplay.toml
+          - cargo-modules.toml
+          - sqlx-cli.toml
+          - cargo-mpirun.toml
+          - tauri-cli.toml
+          - cargo-ndk.toml
+          - trunk.toml
+          - cargo-nextest.toml
+          - typos-cli.toml
+          - cargo-outdated.toml
+          - volo-cli.toml
+          - cargo-prebuilt.toml
+          - wasm-pack.toml
+          - cargo-quickinstall.toml
+          - wasmer-cli.toml
+          - cargo-release.toml
+          - wasmtime-cli.toml
+          - cargo-semver-checks.toml
+          - watchexec-cli.toml
+          - cargo-show-asm.toml
+          - webbundle-cli.toml
+          - cargo-smart-release.toml
+          - websocat.toml
+          - cargo-sort.toml
+          - whiz.toml
+          - cargo-supply-chain.toml
+          - wiki-tui.toml
+          - cargo-update.toml
+          - wit-bindgen-cli.toml
+          - cargo-wasi.toml
+          - wthrr.toml
+          - cargo-watch.toml
+          - xsv.toml
+          - cargo-workspaces.toml
+          - zellij.toml
+          - cargo-xwin.toml
+          - zet.toml
+          - cargo-zigbuild.toml
+          - zp.toml
+          - cargo.toml
+    runs-on: ubuntu-latest
+    needs: [ cross ]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+      - uses: actions/download-artifact@v3
+      - name: Bring images
+        run: ./test/load.sh
+      - name: Test
+        run: python3 ./test/run.py
+      

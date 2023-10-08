@@ -1,0 +1,5 @@
+[info]
+id = "cargo-prebuilt"
+git = "https://github.com/cargo-prebuilt/cargo-prebuilt"
+unsupported = ["x86_64-unknown-illumos"]
+bins = ["cargo-prebuilt"]
