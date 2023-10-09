@@ -1,4 +1,4 @@
-name: Test images
+name: Test images with crates
 
 on:
   push:
@@ -193,4 +193,3 @@ jobs:
       - uses: actions/download-artifact@v3
       - name: Run
         run: python3 ./test/run.py ${{ matrix.crate }}
-      

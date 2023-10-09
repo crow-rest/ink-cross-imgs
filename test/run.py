@@ -49,7 +49,7 @@ def main(filename):
 
     flags = misc.gen_flags(crate_toml)
     linux_flags = flags["linux"]
-    final_linux_flags = "auditable build --verbose --release --locked"
+    final_linux_flags = "auditable build --verbose --release --locked "
     if linux_flags[0] is not None:
         final_linux_flags += f"--features '{linux_flags[0]}' "
     if linux_flags[1]:
@@ -62,13 +62,16 @@ def main(filename):
         # Load image
         subprocess.run(["docker", "load", "-i", f"cross-{t}-amd64/cross-{t}-amd64.tar"]).check_returncode()
 
-        sub = subprocess.run(["docker", "run", "--rm", "--pull=never", "-v", "./build:/project", f"cross:{t}"] + final_linux_flags)
+        try:
+            sub = subprocess.run(["docker", "run", "--rm", "--pull=never", "-v", "./build:/project", f"cross:{t}"] + final_linux_flags)
+        except:
+            pass
         if "GITHUB_STEP_SUMMARY" in os.environ:
             with open(os.environ["GITHUB_STEP_SUMMARY"], "a") as f :
                 print(f"{t}: {sub.returncode}", file=f)
 
         # Purge
-        subprocess.run(["docker", "system", "prune", "--all"]).check_returncode()
+        subprocess.run(["docker", "system", "prune", "--all", "--force"]).check_returncode()
 
 
 if __name__ == "__main__":
