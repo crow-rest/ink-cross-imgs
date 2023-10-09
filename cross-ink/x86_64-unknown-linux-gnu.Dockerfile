@@ -31,13 +31,6 @@ ENV PATH=/usr/local/cargo/bin:$PATH
 # Upgrade and install apt packages
 RUN --mount=type=bind,source=./cross-ink/scripts/manage-apt.sh,target=/run.sh /run.sh
 
-# Install rust
-RUN --mount=type=bind,source=./cross-ink/scripts/install-rustup.sh,target=/run.sh /run.sh
-
-# Install rust target
-ENV RUST_TARGET=$RUST_TARGET
-RUN rustup target add "$RUST_TARGET"
-
 # Install cmake
 RUN --mount=type=bind,source=./cross-ink/scripts/install-cmake.sh,target=/run.sh /run.sh
 COPY toolchain-gcc.cmake /opt/toolchain.cmake
@@ -49,6 +42,16 @@ RUN --mount=type=bind,source=./cross-ink/scripts/install-openssl-gnu.sh,target=/
 
 # Cargo prebuilt
 RUN --mount=type=bind,source=./cross-ink/scripts/install-cargo-prebuilt.sh,target=/run.sh /run.sh
+
+# Install rust
+RUN --mount=type=bind,source=./cross-ink/scripts/install-rustup.sh,target=/run.sh /run.sh
+
+# Install rust target
+ENV RUST_TARGET=$RUST_TARGET
+RUN rustup target add "$RUST_TARGET"
+
+# Create Entrypoint
+RUN --mount=type=bind,source=./cross-ink/scripts/entrypoint.sh,target=/run.sh /run.sh
 
 ENV CROSS_TOOLCHAIN_PREFIX=$CROSS_TOOLCHAIN_PREFIX
 ENV CROSS_SYSROOT=$CROSS_SYSROOT
@@ -70,5 +73,5 @@ ENV CARGO_BUILD_TARGET=$RUST_TARGET\
     CARGO_TERM_COLOR=always
 
 WORKDIR /project
-ENTRYPOINT [ "cargo", "+stable" ]
+ENTRYPOINT [ "/entrypoint.sh" ]
 CMD [ "auditable", "build" ]
