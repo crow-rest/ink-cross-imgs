@@ -47,7 +47,7 @@ def main(filename):
 
     subprocess.run(["wget", crates_io_cdn.replace("{CRATE}", crate).replace("{VERSION}", version)]).check_returncode()
     subprocess.run(["tar", "-xf", f"{crate}-{version}.crate"]).check_returncode()
-    subprocess.run(["mv", f"{crate}-{version}/*", "./build"]).check_returncode()
+    subprocess.run(["mv", f"{crate}-{version}", "./build"]).check_returncode()
 
     flags = misc.gen_flags(crate_toml)
     linux_flags = flags["linux"]
