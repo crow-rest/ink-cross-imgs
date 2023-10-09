@@ -31,7 +31,7 @@ jobs:
         with:
           path: |
             /tmp/cross-${{ matrix.target }}-${{ matrix.platform }}.tar
-          key: ${{ matrix.target }}-${{ matrix.platform }}-image-v0
+          key: ${{ matrix.target }}-${{ matrix.platform }}-image-v1
       - name: Set up QEMU
         if: ${{ !steps.cache.outputs.cache-hit }}
         uses: docker/setup-qemu-action@v3
