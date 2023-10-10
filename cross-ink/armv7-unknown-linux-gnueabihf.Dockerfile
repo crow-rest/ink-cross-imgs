@@ -73,5 +73,5 @@ ENV CARGO_BUILD_TARGET=$RUST_TARGET\
     CARGO_TERM_COLOR=always
 
 WORKDIR /project
-ENTRYPOINT [ "./entrypoint.sh" ]
+ENTRYPOINT [ "/entrypoint.sh" ]
 CMD [ "auditable", "build" ]
