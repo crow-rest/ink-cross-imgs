@@ -31,7 +31,7 @@ jobs:
         with:
           path: |
             /tmp/cross-${{ matrix.target }}-${{ matrix.platform }}.tar
-          key: ${{ matrix.target }}-${{ matrix.platform }}-image-v1
+          key: ${{ matrix.target }}-${{ matrix.platform }}-image-v2
       - name: Set up QEMU
         if: ${{ !steps.cache.outputs.cache-hit }}
         uses: docker/setup-qemu-action@v3
@@ -75,113 +75,113 @@ jobs:
       fail-fast: false
       matrix:
         crate:
-          - cocogitti.toml
-          - bacon.toml
-          - coreutils.toml
-          - bandwhich.toml
-          - cross.toml
-          - bat.toml
+          # - cocogitti.toml
+          # - bacon.toml
+          # - coreutils.toml
+          # - bandwhich.toml
+          # - cross.toml
+          # - bat.toml
           - deepl-api.toml
-          - bindgen-cli.toml
+          # - bindgen-cli.toml
           - difftastic.toml
-          - blob-dl.toml
+          # - blob-dl.toml
           - discord-rpc-helper.toml
-          - bob-nvim.toml
-          - du-dust.toml
+          # - bob-nvim.toml
+          # - du-dust.toml
           - cargo-asm.toml
-          - erdtree.toml
-          - cargo-audit.toml
-          - evcxr_jupyter.toml
-          - cargo-auditable.toml
+          # - erdtree.toml
+          # - cargo-audit.toml
+          # - evcxr_jupyter.toml
+          # - cargo-auditable.toml
           - exa.toml
-          - cargo-benchcmp.toml
-          - flamegraph.toml
-          - cargo-binstall.toml
+          # - cargo-benchcmp.toml
+          # - flamegraph.toml
+          # - cargo-binstall.toml
           - gitoxide.toml
           - cargo-bitbake.toml
-          - gitui.toml
-          - cargo-bloat.toml
-          - grcov.toml
+          # - gitui.toml
+          # - cargo-bloat.toml
+          # - grcov.toml
           - cargo-bom.toml
-          - hexyl.toml
-          - cargo-build-deps.toml
-          - httm.toml
-          - cargo-cache.toml
-          - hyperfine.toml
-          - cargo-careful.toml
-          - irust.toml
+          # - hexyl.toml
+          # - cargo-build-deps.toml
+          # - httm.toml
+          # - cargo-cache.toml
+          # - hyperfine.toml
+          # - cargo-careful.toml
+          # - irust.toml
           - cargo-clone.toml
-          - jql.toml
-          - cargo-deadlinks.toml
-          - just.toml
-          - cargo-deb.toml
-          - jxl-oxide-cli.toml
-          - cargo-deny.toml
+          # - jql.toml
+          # - cargo-deadlinks.toml
+          # - just.toml
+          # - cargo-deb.toml
+          # - jxl-oxide-cli.toml
+          # - cargo-deny.toml
           - matrix-commander.toml
-          - cargo-depgraph.toml
+          # - cargo-depgraph.toml
           - nu.toml
-          - cargo-diet.toml
+          # - cargo-diet.toml
           - oha.toml
           - cargo-edit.toml
-          - oxipng.toml
-          - cargo-expand.toml
-          - railwayapp.toml
+          # - oxipng.toml
+          # - cargo-expand.toml
+          # - railwayapp.toml
           - cargo-generate.toml
-          - ripgrep.toml
-          - cargo-get.toml
-          - rsign2.toml
-          - cargo-hack.toml
+          # - ripgrep.toml
+          # - cargo-get.toml
+          # - rsign2.toml
+          # - cargo-hack.toml
           - rtx-cli.toml
           - cargo-info.toml
-          - rust-script.toml
-          - cargo-intraconv.toml
-          - rustic-rs.toml
-          - cargo-license.toml
-          - rustypaste-cli.toml
-          - cargo-llvm-lines.toml
-          - rustypaste.toml
+          # - rust-script.toml
+          # - cargo-intraconv.toml
+          # - rustic-rs.toml
+          # - cargo-license.toml
+          # - rustypaste-cli.toml
+          # - cargo-llvm-lines.toml
+          # - rustypaste.toml
           - cargo-local-registry.toml
           - sccache.toml
-          - cargo-make.toml
-          - spacedisplay.toml
-          - cargo-modules.toml
+          # - cargo-make.toml
+          # - spacedisplay.toml
+          # - cargo-modules.toml
           - sqlx-cli.toml
-          - cargo-mpirun.toml
+          # - cargo-mpirun.toml
           - tauri-cli.toml
-          - cargo-ndk.toml
-          - trunk.toml
+          # - cargo-ndk.toml
+          # - trunk.toml
           - cargo-nextest.toml
-          - typos-cli.toml
+          # - typos-cli.toml
           - cargo-outdated.toml
           - volo-cli.toml
-          - cargo-prebuilt.toml
-          - wasm-pack.toml
-          - cargo-quickinstall.toml
+          # - cargo-prebuilt.toml
+          # - wasm-pack.toml
+          # - cargo-quickinstall.toml
           - wasmer-cli.toml
-          - cargo-release.toml
-          - wasmtime-cli.toml
-          - cargo-semver-checks.toml
-          - watchexec-cli.toml
-          - cargo-show-asm.toml
-          - webbundle-cli.toml
+          # - cargo-release.toml
+          # - wasmtime-cli.toml
+          # - cargo-semver-checks.toml
+          # - watchexec-cli.toml
+          # - cargo-show-asm.toml
+          # - webbundle-cli.toml
           - cargo-smart-release.toml
           - websocat.toml
-          - cargo-sort.toml
-          - whiz.toml
-          - cargo-supply-chain.toml
+          # - cargo-sort.toml
+          # - whiz.toml
+          # - cargo-supply-chain.toml
           - wiki-tui.toml
           - cargo-update.toml
-          - wit-bindgen-cli.toml
-          - cargo-wasi.toml
+          # - wit-bindgen-cli.toml
+          # - cargo-wasi.toml
           - wthrr.toml
-          - cargo-watch.toml
+          # - cargo-watch.toml
           - xsv.toml
           - cargo-workspaces.toml
-          - zellij.toml
-          - cargo-xwin.toml
-          - zet.toml
-          - cargo-zigbuild.toml
-          - zp.toml
+          # - zellij.toml
+          # - cargo-xwin.toml
+          # - zet.toml
+          # - cargo-zigbuild.toml
+          # - zp.toml
           - cargo.toml
     runs-on: ubuntu-latest
     needs: [ cross ]

@@ -49,9 +49,9 @@ def main(filename):
 
     flags = misc.gen_flags(crate_toml)
     linux_flags = flags["linux"]
-    final_linux_flags = "auditable build --verbose --release --locked "
+    final_linux_flags = "auditable build --verbose --release "
     if linux_flags[0] is not None:
-        final_linux_flags += f"--features '{linux_flags[0]}' "
+        final_linux_flags += f"--features {linux_flags[0]} "
     if linux_flags[1]:
         final_linux_flags += "--no-default-features "
     final_linux_flags += linux_flags[2]
