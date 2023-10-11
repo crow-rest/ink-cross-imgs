@@ -3,6 +3,3 @@ id = "cargo-smart-release"
 git = "https://github.com/Byron/gitoxide"
 unsupported = ["x86_64-unknown-illumos"]
 bins = ["cargo-smart-release", "cargo-changelog"]
-
-[target.all]
-features = "vendored-openssl"
