@@ -59,7 +59,7 @@ jobs:
           push: false
           # load: true
           tags: cross:${{ env.LATEST_RUST_VERSION }}-${{ matrix.target }}
-          build-args:
+          build-args: |
             RUST_VERSION=${{ env.LATEST_RUST_VERSION }}
             RUSTUP_VERSION=${{ env.RUSTUP_VERSION }}
             CMAKE_VERSION=${{ env.CMAKE_VERSION }}
@@ -95,7 +95,7 @@ jobs:
           push: false
           load: true
           tags: cross:stable-${{ matrix.target }}
-          build-args:
+          build-args: |
             RUST_VERSION=stable
             RUSTUP_VERSION=${{ env.RUSTUP_VERSION }}
             CMAKE_VERSION=${{ env.CMAKE_VERSION }}
@@ -131,7 +131,7 @@ jobs:
           push: false
           # load: true
           tags: cross:beta-${{ matrix.target }}
-          build-args:
+          build-args: |
             RUST_VERSION=beta
             RUSTUP_VERSION=${{ env.RUSTUP_VERSION }}
             CMAKE_VERSION=${{ env.CMAKE_VERSION }}
@@ -167,7 +167,7 @@ jobs:
           push: false
           # load: true
           tags: cross:nightly-${{ matrix.target }}
-          build-args:
+          build-args: |
             RUST_VERSION=nightly
             RUSTUP_VERSION=${{ env.RUSTUP_VERSION }}
             CMAKE_VERSION=${{ env.CMAKE_VERSION }}
