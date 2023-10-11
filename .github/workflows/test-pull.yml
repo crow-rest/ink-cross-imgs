@@ -33,12 +33,21 @@ jobs:
       - name: Docker Setup Buildx
         id: buildx
         uses: docker/setup-buildx-action@v3
+
       - name: Vars
         run: |
           echo "BUILD_DATE=$(date --utc)" >> $GITHUB_ENV
           ./build-args.sh
+      - name: Vars (Latest Rust Pinned)
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: echo "LATEST_RUST_VERSION=$(gh release view -R rust-lang/rust --json tagName --jq '.tagName')" >> $GITHUB_ENV
+      - name: Vars (Latest Openssl)
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: echo "OPENSSL_VERSION=$(gh release view -R openssl/openssl --json tagName --jq '.tagName')" >> $GITHUB_ENV
 
-      - name: Build and push Docker images (stable)
+      - name: Build and push Docker images (pinned)
         uses: docker/build-push-action@v5
         with:
           context: ./
@@ -46,6 +55,37 @@ jobs:
           no-cache: true
           cache-to: type=inline
           # cache-from: type=inline
+          pull: true
+          push: false
+          # load: true
+          tags: cross:${{ env.LATEST_RUST_VERSION }}-${{ matrix.target }}
+          build-args:
+            RUST_VERSION=${{ env.LATEST_RUST_VERSION }}
+          labels: |
+            tech.harmless.experimental.name="ink-cross:${{ matrix.target }}"
+            tech.harmless.experimental.pull_request_build="${{ github.event_name == 'pull_request' }}"
+            tech.harmless.experimental.run_number="${{ github.run_number }}"
+            tech.harmless.experimental.repo="${{ github.repositoryUrl }}"
+            tech.harmless.experimental.build_date="${{ env.BUILD_DATE }}"
+            tech.harmless.experimental.platform="${{ matrix.platform }}"
+            tech.harmless.experimental.version.rust="${{ env.LATEST_RUST_VERSION }}"
+            tech.harmless.experimental.version.rustup="${{ env.RUSTUP_VERSION }}"
+            tech.harmless.experimental.version.cmake="${{ env.CMAKE_VERSION }}"
+            tech.harmless.experimental.version.openssl="${{ env.OPENSSL_VERSION }}"
+            tech.harmless.experimental.version.llvm="${{ env.LLVM_VERSION }}"
+            tech.harmless.experimental.version.musl="${{ env.MUSL_VERSION }}"
+            org.opencontainers.image.authors="harmless-tech, crow-rest"
+          platforms: linux/${{ matrix.platform }}
+          builder: ${{ steps.buildx.outputs.name }}
+
+      - name: Build and push Docker images (stable)
+        uses: docker/build-push-action@v5
+        with:
+          context: ./
+          file: ./cross-ink/${{ matrix.target }}.Dockerfile
+          # no-cache: true
+          # cache-to: type=inline
+          cache-from: type=inline
           pull: true
           push: false
           load: true
