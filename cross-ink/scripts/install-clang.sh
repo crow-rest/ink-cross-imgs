@@ -47,7 +47,7 @@ update-alternatives --install /usr/bin/strings strings /usr/bin/llvm-strings-"$L
 mkdir -p "$CROSS_SYSROOT"/bin
 
 echo '#!/bin/sh' >"$CROSS_SYSROOT"/bin/"$CROSS_TOOLCHAIN_PREFIX"clang
-echo "exec /usr/bin/clang-$LLVM_VERSION --target=$LLVM_TARGET --sysroot=$CROSS_SYSROOT -I=$CROSS_SYSROOT/include -L=$CROSS_SYSROOT/lib \"\$@\"" >>"$CROSS_SYSROOT"/bin/"$CROSS_TOOLCHAIN_PREFIX"clang
+echo "exec /usr/bin/clang-$LLVM_VERSION --target=$LLVM_TARGET --sysroot=$CROSS_SYSROOT \"\$@\"" >>"$CROSS_SYSROOT"/bin/"$CROSS_TOOLCHAIN_PREFIX"clang
 chmod +x "$CROSS_SYSROOT"/bin/"$CROSS_TOOLCHAIN_PREFIX"clang
 
 echo '#!/bin/sh' >"$CROSS_SYSROOT"/bin/"$CROSS_TOOLCHAIN_PREFIX"clang++
