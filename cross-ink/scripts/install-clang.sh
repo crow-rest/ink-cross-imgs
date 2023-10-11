@@ -22,7 +22,7 @@ apt purge -y wget software-properties-common gnupg
 apt autoremove -y
 rm -rf /var/lib/apt/lists/*
 
-clang-17 --version
+clang-"$LLVM_VERSION" --version
 
 # Set clang alts
 update-alternatives --install /usr/bin/clang clang /usr/bin/clang-"$LLVM_VERSION" 100

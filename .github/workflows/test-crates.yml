@@ -26,24 +26,24 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/cache@v3
-        id: cache
-        with:
-          path: |
-            /tmp/cross-${{ matrix.target }}-${{ matrix.platform }}.tar
-          key: ${{ matrix.target }}-${{ matrix.platform }}-image-v3
+      # - uses: actions/cache@v3
+      #   id: cache
+      #   with:
+      #     path: |
+      #       /tmp/cross-${{ matrix.target }}-${{ matrix.platform }}.tar
+      #     key: ${{ matrix.target }}-${{ matrix.platform }}-image-v3
       - name: Set up QEMU
-        if: ${{ !steps.cache.outputs.cache-hit }}
+        # if: ${{ !steps.cache.outputs.cache-hit }}
         uses: docker/setup-qemu-action@v3
       - name: Docker Setup Buildx
-        if: ${{ !steps.cache.outputs.cache-hit }}
+        # if: ${{ !steps.cache.outputs.cache-hit }}
         id: buildx
         uses: docker/setup-buildx-action@v3
       - name: Vars
         run: |
           echo "BUILD_DATE=$(date --utc)" >> $GITHUB_ENV
       - name: Build and push Docker images
-        if: ${{ !steps.cache.outputs.cache-hit }}
+        # if: ${{ !steps.cache.outputs.cache-hit }}
         uses: docker/build-push-action@v5
         with:
           context: ./
@@ -53,6 +53,8 @@ jobs:
           push: false
           tags: cross:${{ matrix.target }}
           outputs: type=docker,dest=/tmp/cross-${{ matrix.target }}-${{ matrix.platform }}.tar
+          build-args: |
+            RUST_VERSION=beta
           labels: |
             tech.harmless.experimental.name="ink-cross:${{ matrix.target }}"
             tech.harmless.experimental.pull_request_build="${{ github.event_name == 'pull_request' }}"
@@ -153,7 +155,7 @@ jobs:
           # - cargo-nextest.toml
           # - typos-cli.toml
           - cargo-outdated.toml # riscv64 problems (1.73)
-          - volo-cli.toml
+          # - volo-cli.toml # Requires nightly feature
           # - cargo-prebuilt.toml
           # - wasm-pack.toml
           # - cargo-quickinstall.toml
