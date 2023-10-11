@@ -1,0 +1,69 @@
+name: Test images (Pull)
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  cross:
+    strategy:
+      fail-fast: false
+      matrix:
+        platform: # TODO: This should just become one in the platform section
+          - amd64
+          # - arm64
+        target:
+          # - aarch64-unknown-linux-gnu
+          # - aarch64-unknown-linux-musl
+          # - armv7-unknown-linux-gnueabihf
+          # - armv7-unknown-linux-musleabihf
+          # - powerpc64le-unknown-linux-gnu
+          # - riscv64gc-unknown-linux-gnu
+          # - s390x-unknown-linux-gnu
+          - x86_64-unknown-linux-gnu
+          - x86_64-unknown-linux-musl
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+      - name: Docker Setup Buildx
+        id: buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Vars
+        run: |
+          echo "BUILD_DATE=$(date --utc)" >> $GITHUB_ENV
+          `cat ./build-args`
+      - name: Build and push Docker images
+        uses: docker/build-push-action@v5
+        with:
+          context: ./
+          file: ./cross-ink/${{ matrix.target }}.Dockerfile
+          no-cache: true
+          cache-to: type=inline
+          # cache-from: type=inline
+          pull: true
+          push: false
+          load: true
+          tags: cross:${{ matrix.target }}
+          labels: |
+            tech.harmless.experimental.name="ink-cross:${{ matrix.target }}"
+            tech.harmless.experimental.pull_request_build="${{ github.event_name == 'pull_request' }}"
+            tech.harmless.experimental.run_number="${{ github.run_number }}"
+            tech.harmless.experimental.repo="${{ github.repositoryUrl }}"
+            tech.harmless.experimental.build_date="${{ env.BUILD_DATE }}"
+            tech.harmless.experimental.platform="${{ matrix.platform }}"
+            tech.harmless.experimental.version.rustup="${{ env.RUSTUP_VERSION }}"
+            tech.harmless.experimental.version.cmake="${{ env.CMAKE_VERSION }}"
+            tech.harmless.experimental.version.openssl="${{ env.OPENSSL_VERSION }}"
+            tech.harmless.experimental.version.llvm="${{ env.LLVM_VERSION }}"
+            tech.harmless.experimental.version.musl="${{ env.MUSL_VERSION }}"
+            org.opencontainers.image.authors="harmless-tech, crow-rest"
+          platforms: linux/${{ matrix.platform }}
+          builder: ${{ steps.buildx.outputs.name }}
+
+      - name: Details
+        run: docker image inspect cross:${{ matrix.target }}
