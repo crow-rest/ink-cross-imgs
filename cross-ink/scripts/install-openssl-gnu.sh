@@ -8,7 +8,7 @@ pushd /tmp/openssl
 $EXT_CURL_CMD "https://www.openssl.org/source/$OPENSSL_VERSION.tar.gz" -o openssl.tar.gz
 tar -xzf openssl.tar.gz
 rm -f openssl.tar.gz
-cd "./openssl-$OPENSSL_VERSION"
+cd "./$OPENSSL_VERSION"
 
 AR="$CROSS_TOOLCHAIN_PREFIX"ar CC="$CROSS_TOOLCHAIN_PREFIX"gcc ./Configure $OPENSSL_COMBO \
     --libdir=lib --prefix="/usr/local/$CROSS_TOOLCHAIN" --openssldir="/usr/local/$CROSS_TOOLCHAIN/ssl" \
