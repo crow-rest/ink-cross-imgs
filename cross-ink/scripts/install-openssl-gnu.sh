@@ -5,7 +5,7 @@ set -euxo pipefail
 mkdir -p /tmp/openssl
 pushd /tmp/openssl
 
-$EXT_CURL_CMD "https://www.openssl.org/source/openssl-$OPENSSL_VERSION.tar.gz" -o openssl.tar.gz
+$EXT_CURL_CMD "https://www.openssl.org/source/$OPENSSL_VERSION.tar.gz" -o openssl.tar.gz
 tar -xzf openssl.tar.gz
 rm -f openssl.tar.gz
 cd "./openssl-$OPENSSL_VERSION"

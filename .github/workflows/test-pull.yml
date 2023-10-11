@@ -61,6 +61,11 @@ jobs:
           tags: cross:${{ env.LATEST_RUST_VERSION }}-${{ matrix.target }}
           build-args:
             RUST_VERSION=${{ env.LATEST_RUST_VERSION }}
+            RUSTUP_VERSION=${{ env.RUSTUP_VERSION }}
+            CMAKE_VERSION=${{ env.CMAKE_VERSION }}
+            OPENSSL_VERSION=${{ env.OPENSSL_VERSION }}
+            LLVM_VERSION=${{ env.LLVM_VERSION }}
+            MUSL_VERSION=${{ env.MUSL_VERSION }}
           labels: |
             tech.harmless.experimental.name="ink-cross:${{ matrix.target }}"
             tech.harmless.experimental.pull_request_build="${{ github.event_name == 'pull_request' }}"
@@ -92,6 +97,11 @@ jobs:
           tags: cross:stable-${{ matrix.target }}
           build-args:
             RUST_VERSION=stable
+            RUSTUP_VERSION=${{ env.RUSTUP_VERSION }}
+            CMAKE_VERSION=${{ env.CMAKE_VERSION }}
+            OPENSSL_VERSION=${{ env.OPENSSL_VERSION }}
+            LLVM_VERSION=${{ env.LLVM_VERSION }}
+            MUSL_VERSION=${{ env.MUSL_VERSION }}
           labels: |
             tech.harmless.experimental.name="ink-cross:${{ matrix.target }}"
             tech.harmless.experimental.pull_request_build="${{ github.event_name == 'pull_request' }}"
@@ -123,6 +133,11 @@ jobs:
           tags: cross:beta-${{ matrix.target }}
           build-args:
             RUST_VERSION=beta
+            RUSTUP_VERSION=${{ env.RUSTUP_VERSION }}
+            CMAKE_VERSION=${{ env.CMAKE_VERSION }}
+            OPENSSL_VERSION=${{ env.OPENSSL_VERSION }}
+            LLVM_VERSION=${{ env.LLVM_VERSION }}
+            MUSL_VERSION=${{ env.MUSL_VERSION }}
           labels: |
             tech.harmless.experimental.name="ink-cross:${{ matrix.target }}"
             tech.harmless.experimental.pull_request_build="${{ github.event_name == 'pull_request' }}"
@@ -154,6 +169,11 @@ jobs:
           tags: cross:nightly-${{ matrix.target }}
           build-args:
             RUST_VERSION=nightly
+            RUSTUP_VERSION=${{ env.RUSTUP_VERSION }}
+            CMAKE_VERSION=${{ env.CMAKE_VERSION }}
+            OPENSSL_VERSION=${{ env.OPENSSL_VERSION }}
+            LLVM_VERSION=${{ env.LLVM_VERSION }}
+            MUSL_VERSION=${{ env.MUSL_VERSION }}
           labels: |
             tech.harmless.experimental.name="ink-cross:${{ matrix.target }}"
             tech.harmless.experimental.pull_request_build="${{ github.event_name == 'pull_request' }}"
