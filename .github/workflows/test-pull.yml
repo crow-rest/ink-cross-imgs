@@ -49,7 +49,7 @@ jobs:
           pull: true
           push: false
           load: true
-          tags: cross:${{ matrix.target }}
+          tags: cross:stable-${{ matrix.target }}
           build-args:
             RUST_VERSION=stable
           labels: |
