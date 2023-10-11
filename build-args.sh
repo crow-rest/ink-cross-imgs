@@ -1,3 +1,5 @@
+#!/bin/bash
+
 echo "RUSTUP_VERSION=1.26.0" >> $GITHUB_ENV
 echo "CMAKE_VERSION=3.27.7" >> $GITHUB_ENV
 echo "OPENSSL_VERSION=3.1.3" >> $GITHUB_ENV

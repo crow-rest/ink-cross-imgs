@@ -36,8 +36,9 @@ jobs:
       - name: Vars
         run: |
           echo "BUILD_DATE=$(date --utc)" >> $GITHUB_ENV
-          `cat ./build-args`
-      - name: Build and push Docker images
+          ./build-args.sh
+
+      - name: Build and push Docker images (stable)
         uses: docker/build-push-action@v5
         with:
           context: ./
@@ -49,6 +50,8 @@ jobs:
           push: false
           load: true
           tags: cross:${{ matrix.target }}
+          build-args:
+            RUST_VERSION=stable
           labels: |
             tech.harmless.experimental.name="ink-cross:${{ matrix.target }}"
             tech.harmless.experimental.pull_request_build="${{ github.event_name == 'pull_request' }}"
@@ -56,6 +59,69 @@ jobs:
             tech.harmless.experimental.repo="${{ github.repositoryUrl }}"
             tech.harmless.experimental.build_date="${{ env.BUILD_DATE }}"
             tech.harmless.experimental.platform="${{ matrix.platform }}"
+            tech.harmless.experimental.version.rust="stable"
+            tech.harmless.experimental.version.rustup="${{ env.RUSTUP_VERSION }}"
+            tech.harmless.experimental.version.cmake="${{ env.CMAKE_VERSION }}"
+            tech.harmless.experimental.version.openssl="${{ env.OPENSSL_VERSION }}"
+            tech.harmless.experimental.version.llvm="${{ env.LLVM_VERSION }}"
+            tech.harmless.experimental.version.musl="${{ env.MUSL_VERSION }}"
+            org.opencontainers.image.authors="harmless-tech, crow-rest"
+          platforms: linux/${{ matrix.platform }}
+          builder: ${{ steps.buildx.outputs.name }}
+
+      - name: Build and push Docker images (beta)
+        uses: docker/build-push-action@v5
+        with:
+          context: ./
+          file: ./cross-ink/${{ matrix.target }}.Dockerfile
+          # no-cache: true
+          # cache-to: type=inline
+          cache-from: type=inline
+          pull: true
+          push: false
+          # load: true
+          tags: cross:beta-${{ matrix.target }}
+          build-args:
+            RUST_VERSION=beta
+          labels: |
+            tech.harmless.experimental.name="ink-cross:${{ matrix.target }}"
+            tech.harmless.experimental.pull_request_build="${{ github.event_name == 'pull_request' }}"
+            tech.harmless.experimental.run_number="${{ github.run_number }}"
+            tech.harmless.experimental.repo="${{ github.repositoryUrl }}"
+            tech.harmless.experimental.build_date="${{ env.BUILD_DATE }}"
+            tech.harmless.experimental.platform="${{ matrix.platform }}"
+            tech.harmless.experimental.version.rust="beta"
+            tech.harmless.experimental.version.rustup="${{ env.RUSTUP_VERSION }}"
+            tech.harmless.experimental.version.cmake="${{ env.CMAKE_VERSION }}"
+            tech.harmless.experimental.version.openssl="${{ env.OPENSSL_VERSION }}"
+            tech.harmless.experimental.version.llvm="${{ env.LLVM_VERSION }}"
+            tech.harmless.experimental.version.musl="${{ env.MUSL_VERSION }}"
+            org.opencontainers.image.authors="harmless-tech, crow-rest"
+          platforms: linux/${{ matrix.platform }}
+          builder: ${{ steps.buildx.outputs.name }}
+
+      - name: Build and push Docker images (nightly)
+        uses: docker/build-push-action@v5
+        with:
+          context: ./
+          file: ./cross-ink/${{ matrix.target }}.Dockerfile
+          # no-cache: true
+          # cache-to: type=inline
+          cache-from: type=inline
+          pull: true
+          push: false
+          # load: true
+          tags: cross:nightly-${{ matrix.target }}
+          build-args:
+            RUST_VERSION=nightly
+          labels: |
+            tech.harmless.experimental.name="ink-cross:${{ matrix.target }}"
+            tech.harmless.experimental.pull_request_build="${{ github.event_name == 'pull_request' }}"
+            tech.harmless.experimental.run_number="${{ github.run_number }}"
+            tech.harmless.experimental.repo="${{ github.repositoryUrl }}"
+            tech.harmless.experimental.build_date="${{ env.BUILD_DATE }}"
+            tech.harmless.experimental.platform="${{ matrix.platform }}"
+            tech.harmless.experimental.version.rust="nightly"
             tech.harmless.experimental.version.rustup="${{ env.RUSTUP_VERSION }}"
             tech.harmless.experimental.version.cmake="${{ env.CMAKE_VERSION }}"
             tech.harmless.experimental.version.openssl="${{ env.OPENSSL_VERSION }}"
@@ -66,4 +132,4 @@ jobs:
           builder: ${{ steps.buildx.outputs.name }}
 
       - name: Details
-        run: docker image inspect cross:${{ matrix.target }}
+        run: docker image inspect cross:stable-${{ matrix.target }}
