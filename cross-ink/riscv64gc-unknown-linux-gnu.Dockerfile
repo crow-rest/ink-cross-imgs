@@ -4,7 +4,7 @@ FROM debian:stable-slim
 # Build CMDS
 ARG EXT_CURL_CMD="curl --retry 3 -fsSL"
 
-# Updatable
+# Versioning
 ARG RUSTUP_VERSION=1.26.0
 ARG CMAKE_VERSION=3.27.7
 ARG OPENSSL_VERSION=3.1.3
@@ -13,7 +13,6 @@ ARG OPENSSL_VERSION=3.1.3
 ARG DEBIAN_FRONTEND=noninteractive
 ARG TARGETARCH
 
-ARG RUST_VERSION=stable
 ARG RUST_TARGET=riscv64gc-unknown-linux-gnu
 
 ARG CROSS_TOOLCHAIN=riscv64-linux-gnu
@@ -44,6 +43,7 @@ RUN --mount=type=bind,source=./cross-ink/scripts/install-openssl-gnu.sh,target=/
 RUN --mount=type=bind,source=./cross-ink/scripts/install-cargo-prebuilt.sh,target=/run.sh /run.sh
 
 # Install rust
+ARG RUST_VERSION=stable
 RUN --mount=type=bind,source=./cross-ink/scripts/install-rustup.sh,target=/run.sh /run.sh
 
 # Install rust target
