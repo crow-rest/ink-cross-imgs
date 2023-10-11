@@ -54,7 +54,7 @@ jobs:
           tags: cross:${{ matrix.target }}
           outputs: type=docker,dest=/tmp/cross-${{ matrix.target }}-${{ matrix.platform }}.tar
           build-args: |
-            RUST_VERSION=beta
+            RUST_VERSION=nightly
           labels: |
             tech.harmless.experimental.name="ink-cross:${{ matrix.target }}"
             tech.harmless.experimental.pull_request_build="${{ github.event_name == 'pull_request' }}"
