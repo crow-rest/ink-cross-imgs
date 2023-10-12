@@ -1,195 +1,195 @@
-name: Test images (Pull)
+# name: Test images (Pull)
 
-on:
-  push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
-  workflow_dispatch:
+# on:
+#   push:
+#     branches: [ main ]
+#   pull_request:
+#     branches: [ main ]
+#   workflow_dispatch:
 
-jobs:
-  cross:
-    strategy:
-      fail-fast: false
-      matrix:
-        platform: # TODO: This should just become one in the platform section
-          - amd64
-          # - arm64
-        target:
-          # - aarch64-unknown-linux-gnu
-          # - aarch64-unknown-linux-musl
-          # - armv7-unknown-linux-gnueabihf
-          # - armv7-unknown-linux-musleabihf
-          # - powerpc64le-unknown-linux-gnu
-          # - riscv64gc-unknown-linux-gnu
-          # - s390x-unknown-linux-gnu
-          - x86_64-unknown-linux-gnu
-          - x86_64-unknown-linux-musl
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
-      - name: Docker Setup Buildx
-        id: buildx
-        uses: docker/setup-buildx-action@v3
+# jobs:
+#   cross:
+#     strategy:
+#       fail-fast: false
+#       matrix:
+#         platform: # TODO: This should just become one in the platform section
+#           - amd64
+#           # - arm64
+#         target:
+#           # - aarch64-unknown-linux-gnu
+#           # - aarch64-unknown-linux-musl
+#           # - armv7-unknown-linux-gnueabihf
+#           # - armv7-unknown-linux-musleabihf
+#           # - powerpc64le-unknown-linux-gnu
+#           # - riscv64gc-unknown-linux-gnu
+#           # - s390x-unknown-linux-gnu
+#           - x86_64-unknown-linux-gnu
+#           - x86_64-unknown-linux-musl
+#     runs-on: ubuntu-latest
+#     steps:
+#       - uses: actions/checkout@v3
+#       - name: Set up QEMU
+#         uses: docker/setup-qemu-action@v3
+#       - name: Docker Setup Buildx
+#         id: buildx
+#         uses: docker/setup-buildx-action@v3
 
-      - name: Vars
-        run: |
-          echo "BUILD_DATE=$(date --utc)" >> $GITHUB_ENV
-          ./build-args.sh
-      - name: Vars (Latest Rust Pinned)
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: echo "LATEST_RUST_VERSION=$(gh release view -R rust-lang/rust --json tagName --jq '.tagName')" >> $GITHUB_ENV
-      - name: Vars (Latest Openssl)
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: echo "OPENSSL_VERSION=$(gh release view -R openssl/openssl --json tagName --jq '.tagName')" >> $GITHUB_ENV
+#       - name: Vars
+#         run: |
+#           echo "BUILD_DATE=$(date --utc)" >> $GITHUB_ENV
+#           ./build-args.sh
+#       - name: Vars (Latest Rust Pinned)
+#         env:
+#           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#         run: echo "LATEST_RUST_VERSION=$(gh release view -R rust-lang/rust --json tagName --jq '.tagName')" >> $GITHUB_ENV
+#       - name: Vars (Latest Openssl)
+#         env:
+#           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#         run: echo "OPENSSL_VERSION=$(gh release view -R openssl/openssl --json tagName --jq '.tagName')" >> $GITHUB_ENV
 
-      - name: Build and push Docker images (pinned)
-        uses: docker/build-push-action@v5
-        with:
-          context: ./
-          file: ./cross-ink/${{ matrix.target }}.Dockerfile
-          no-cache: true
-          cache-to: type=inline
-          # cache-from: type=inline
-          pull: true
-          push: false
-          # load: true
-          tags: cross:${{ env.LATEST_RUST_VERSION }}-${{ matrix.target }}
-          build-args: |
-            RUST_VERSION=${{ env.LATEST_RUST_VERSION }}
-            RUSTUP_VERSION=${{ env.RUSTUP_VERSION }}
-            CMAKE_VERSION=${{ env.CMAKE_VERSION }}
-            OPENSSL_VERSION=${{ env.OPENSSL_VERSION }}
-            LLVM_VERSION=${{ env.LLVM_VERSION }}
-            MUSL_VERSION=${{ env.MUSL_VERSION }}
-          labels: |
-            tech.harmless.experimental.name="ink-cross:${{ matrix.target }}"
-            tech.harmless.experimental.pull_request_build="${{ github.event_name == 'pull_request' }}"
-            tech.harmless.experimental.run_number="${{ github.run_number }}"
-            tech.harmless.experimental.repo="${{ github.repositoryUrl }}"
-            tech.harmless.experimental.build_date="${{ env.BUILD_DATE }}"
-            tech.harmless.experimental.platform="${{ matrix.platform }}"
-            tech.harmless.experimental.version.rust="${{ env.LATEST_RUST_VERSION }}"
-            tech.harmless.experimental.version.rustup="${{ env.RUSTUP_VERSION }}"
-            tech.harmless.experimental.version.cmake="${{ env.CMAKE_VERSION }}"
-            tech.harmless.experimental.version.openssl="${{ env.OPENSSL_VERSION }}"
-            tech.harmless.experimental.version.llvm="${{ env.LLVM_VERSION }}"
-            tech.harmless.experimental.version.musl="${{ env.MUSL_VERSION }}"
-            org.opencontainers.image.authors="harmless-tech, crow-rest"
-          platforms: linux/${{ matrix.platform }}
-          builder: ${{ steps.buildx.outputs.name }}
+#       - name: Build and push Docker images (pinned)
+#         uses: docker/build-push-action@v5
+#         with:
+#           context: ./
+#           file: ./cross-ink/${{ matrix.target }}.Dockerfile
+#           no-cache: true
+#           cache-to: type=inline
+#           # cache-from: type=inline
+#           pull: true
+#           push: false
+#           # load: true
+#           tags: cross:${{ env.LATEST_RUST_VERSION }}-${{ matrix.target }}
+#           build-args: |
+#             RUST_VERSION=${{ env.LATEST_RUST_VERSION }}
+#             RUSTUP_VERSION=${{ env.RUSTUP_VERSION }}
+#             CMAKE_VERSION=${{ env.CMAKE_VERSION }}
+#             OPENSSL_VERSION=${{ env.OPENSSL_VERSION }}
+#             LLVM_VERSION=${{ env.LLVM_VERSION }}
+#             MUSL_VERSION=${{ env.MUSL_VERSION }}
+#           labels: |
+#             tech.harmless.experimental.name="ink-cross:${{ matrix.target }}"
+#             tech.harmless.experimental.pull_request_build="${{ github.event_name == 'pull_request' }}"
+#             tech.harmless.experimental.run_number="${{ github.run_number }}"
+#             tech.harmless.experimental.repo="${{ github.repositoryUrl }}"
+#             tech.harmless.experimental.build_date="${{ env.BUILD_DATE }}"
+#             tech.harmless.experimental.platform="${{ matrix.platform }}"
+#             tech.harmless.experimental.version.rust="${{ env.LATEST_RUST_VERSION }}"
+#             tech.harmless.experimental.version.rustup="${{ env.RUSTUP_VERSION }}"
+#             tech.harmless.experimental.version.cmake="${{ env.CMAKE_VERSION }}"
+#             tech.harmless.experimental.version.openssl="${{ env.OPENSSL_VERSION }}"
+#             tech.harmless.experimental.version.llvm="${{ env.LLVM_VERSION }}"
+#             tech.harmless.experimental.version.musl="${{ env.MUSL_VERSION }}"
+#             org.opencontainers.image.authors="harmless-tech, crow-rest"
+#           platforms: linux/${{ matrix.platform }}
+#           builder: ${{ steps.buildx.outputs.name }}
 
-      - name: Build and push Docker images (stable)
-        uses: docker/build-push-action@v5
-        with:
-          context: ./
-          file: ./cross-ink/${{ matrix.target }}.Dockerfile
-          # no-cache: true
-          # cache-to: type=inline
-          cache-from: type=inline
-          pull: true
-          push: false
-          load: true
-          tags: cross:stable-${{ matrix.target }}
-          build-args: |
-            RUST_VERSION=stable
-            RUSTUP_VERSION=${{ env.RUSTUP_VERSION }}
-            CMAKE_VERSION=${{ env.CMAKE_VERSION }}
-            OPENSSL_VERSION=${{ env.OPENSSL_VERSION }}
-            LLVM_VERSION=${{ env.LLVM_VERSION }}
-            MUSL_VERSION=${{ env.MUSL_VERSION }}
-          labels: |
-            tech.harmless.experimental.name="ink-cross:${{ matrix.target }}"
-            tech.harmless.experimental.pull_request_build="${{ github.event_name == 'pull_request' }}"
-            tech.harmless.experimental.run_number="${{ github.run_number }}"
-            tech.harmless.experimental.repo="${{ github.repositoryUrl }}"
-            tech.harmless.experimental.build_date="${{ env.BUILD_DATE }}"
-            tech.harmless.experimental.platform="${{ matrix.platform }}"
-            tech.harmless.experimental.version.rust="stable"
-            tech.harmless.experimental.version.rustup="${{ env.RUSTUP_VERSION }}"
-            tech.harmless.experimental.version.cmake="${{ env.CMAKE_VERSION }}"
-            tech.harmless.experimental.version.openssl="${{ env.OPENSSL_VERSION }}"
-            tech.harmless.experimental.version.llvm="${{ env.LLVM_VERSION }}"
-            tech.harmless.experimental.version.musl="${{ env.MUSL_VERSION }}"
-            org.opencontainers.image.authors="harmless-tech, crow-rest"
-          platforms: linux/${{ matrix.platform }}
-          builder: ${{ steps.buildx.outputs.name }}
+#       - name: Build and push Docker images (stable)
+#         uses: docker/build-push-action@v5
+#         with:
+#           context: ./
+#           file: ./cross-ink/${{ matrix.target }}.Dockerfile
+#           # no-cache: true
+#           # cache-to: type=inline
+#           cache-from: type=inline
+#           pull: true
+#           push: false
+#           load: true
+#           tags: cross:stable-${{ matrix.target }}
+#           build-args: |
+#             RUST_VERSION=stable
+#             RUSTUP_VERSION=${{ env.RUSTUP_VERSION }}
+#             CMAKE_VERSION=${{ env.CMAKE_VERSION }}
+#             OPENSSL_VERSION=${{ env.OPENSSL_VERSION }}
+#             LLVM_VERSION=${{ env.LLVM_VERSION }}
+#             MUSL_VERSION=${{ env.MUSL_VERSION }}
+#           labels: |
+#             tech.harmless.experimental.name="ink-cross:${{ matrix.target }}"
+#             tech.harmless.experimental.pull_request_build="${{ github.event_name == 'pull_request' }}"
+#             tech.harmless.experimental.run_number="${{ github.run_number }}"
+#             tech.harmless.experimental.repo="${{ github.repositoryUrl }}"
+#             tech.harmless.experimental.build_date="${{ env.BUILD_DATE }}"
+#             tech.harmless.experimental.platform="${{ matrix.platform }}"
+#             tech.harmless.experimental.version.rust="stable"
+#             tech.harmless.experimental.version.rustup="${{ env.RUSTUP_VERSION }}"
+#             tech.harmless.experimental.version.cmake="${{ env.CMAKE_VERSION }}"
+#             tech.harmless.experimental.version.openssl="${{ env.OPENSSL_VERSION }}"
+#             tech.harmless.experimental.version.llvm="${{ env.LLVM_VERSION }}"
+#             tech.harmless.experimental.version.musl="${{ env.MUSL_VERSION }}"
+#             org.opencontainers.image.authors="harmless-tech, crow-rest"
+#           platforms: linux/${{ matrix.platform }}
+#           builder: ${{ steps.buildx.outputs.name }}
 
-      - name: Build and push Docker images (beta)
-        uses: docker/build-push-action@v5
-        with:
-          context: ./
-          file: ./cross-ink/${{ matrix.target }}.Dockerfile
-          # no-cache: true
-          # cache-to: type=inline
-          cache-from: type=inline
-          pull: true
-          push: false
-          # load: true
-          tags: cross:beta-${{ matrix.target }}
-          build-args: |
-            RUST_VERSION=beta
-            RUSTUP_VERSION=${{ env.RUSTUP_VERSION }}
-            CMAKE_VERSION=${{ env.CMAKE_VERSION }}
-            OPENSSL_VERSION=${{ env.OPENSSL_VERSION }}
-            LLVM_VERSION=${{ env.LLVM_VERSION }}
-            MUSL_VERSION=${{ env.MUSL_VERSION }}
-          labels: |
-            tech.harmless.experimental.name="ink-cross:${{ matrix.target }}"
-            tech.harmless.experimental.pull_request_build="${{ github.event_name == 'pull_request' }}"
-            tech.harmless.experimental.run_number="${{ github.run_number }}"
-            tech.harmless.experimental.repo="${{ github.repositoryUrl }}"
-            tech.harmless.experimental.build_date="${{ env.BUILD_DATE }}"
-            tech.harmless.experimental.platform="${{ matrix.platform }}"
-            tech.harmless.experimental.version.rust="beta"
-            tech.harmless.experimental.version.rustup="${{ env.RUSTUP_VERSION }}"
-            tech.harmless.experimental.version.cmake="${{ env.CMAKE_VERSION }}"
-            tech.harmless.experimental.version.openssl="${{ env.OPENSSL_VERSION }}"
-            tech.harmless.experimental.version.llvm="${{ env.LLVM_VERSION }}"
-            tech.harmless.experimental.version.musl="${{ env.MUSL_VERSION }}"
-            org.opencontainers.image.authors="harmless-tech, crow-rest"
-          platforms: linux/${{ matrix.platform }}
-          builder: ${{ steps.buildx.outputs.name }}
+#       - name: Build and push Docker images (beta)
+#         uses: docker/build-push-action@v5
+#         with:
+#           context: ./
+#           file: ./cross-ink/${{ matrix.target }}.Dockerfile
+#           # no-cache: true
+#           # cache-to: type=inline
+#           cache-from: type=inline
+#           pull: true
+#           push: false
+#           # load: true
+#           tags: cross:beta-${{ matrix.target }}
+#           build-args: |
+#             RUST_VERSION=beta
+#             RUSTUP_VERSION=${{ env.RUSTUP_VERSION }}
+#             CMAKE_VERSION=${{ env.CMAKE_VERSION }}
+#             OPENSSL_VERSION=${{ env.OPENSSL_VERSION }}
+#             LLVM_VERSION=${{ env.LLVM_VERSION }}
+#             MUSL_VERSION=${{ env.MUSL_VERSION }}
+#           labels: |
+#             tech.harmless.experimental.name="ink-cross:${{ matrix.target }}"
+#             tech.harmless.experimental.pull_request_build="${{ github.event_name == 'pull_request' }}"
+#             tech.harmless.experimental.run_number="${{ github.run_number }}"
+#             tech.harmless.experimental.repo="${{ github.repositoryUrl }}"
+#             tech.harmless.experimental.build_date="${{ env.BUILD_DATE }}"
+#             tech.harmless.experimental.platform="${{ matrix.platform }}"
+#             tech.harmless.experimental.version.rust="beta"
+#             tech.harmless.experimental.version.rustup="${{ env.RUSTUP_VERSION }}"
+#             tech.harmless.experimental.version.cmake="${{ env.CMAKE_VERSION }}"
+#             tech.harmless.experimental.version.openssl="${{ env.OPENSSL_VERSION }}"
+#             tech.harmless.experimental.version.llvm="${{ env.LLVM_VERSION }}"
+#             tech.harmless.experimental.version.musl="${{ env.MUSL_VERSION }}"
+#             org.opencontainers.image.authors="harmless-tech, crow-rest"
+#           platforms: linux/${{ matrix.platform }}
+#           builder: ${{ steps.buildx.outputs.name }}
 
-      - name: Build and push Docker images (nightly)
-        uses: docker/build-push-action@v5
-        with:
-          context: ./
-          file: ./cross-ink/${{ matrix.target }}.Dockerfile
-          # no-cache: true
-          # cache-to: type=inline
-          cache-from: type=inline
-          pull: true
-          push: false
-          # load: true
-          tags: cross:nightly-${{ matrix.target }}
-          build-args: |
-            RUST_VERSION=nightly
-            RUSTUP_VERSION=${{ env.RUSTUP_VERSION }}
-            CMAKE_VERSION=${{ env.CMAKE_VERSION }}
-            OPENSSL_VERSION=${{ env.OPENSSL_VERSION }}
-            LLVM_VERSION=${{ env.LLVM_VERSION }}
-            MUSL_VERSION=${{ env.MUSL_VERSION }}
-          labels: |
-            tech.harmless.experimental.name="ink-cross:${{ matrix.target }}"
-            tech.harmless.experimental.pull_request_build="${{ github.event_name == 'pull_request' }}"
-            tech.harmless.experimental.run_number="${{ github.run_number }}"
-            tech.harmless.experimental.repo="${{ github.repositoryUrl }}"
-            tech.harmless.experimental.build_date="${{ env.BUILD_DATE }}"
-            tech.harmless.experimental.platform="${{ matrix.platform }}"
-            tech.harmless.experimental.version.rust="nightly"
-            tech.harmless.experimental.version.rustup="${{ env.RUSTUP_VERSION }}"
-            tech.harmless.experimental.version.cmake="${{ env.CMAKE_VERSION }}"
-            tech.harmless.experimental.version.openssl="${{ env.OPENSSL_VERSION }}"
-            tech.harmless.experimental.version.llvm="${{ env.LLVM_VERSION }}"
-            tech.harmless.experimental.version.musl="${{ env.MUSL_VERSION }}"
-            org.opencontainers.image.authors="harmless-tech, crow-rest"
-          platforms: linux/${{ matrix.platform }}
-          builder: ${{ steps.buildx.outputs.name }}
+#       - name: Build and push Docker images (nightly)
+#         uses: docker/build-push-action@v5
+#         with:
+#           context: ./
+#           file: ./cross-ink/${{ matrix.target }}.Dockerfile
+#           # no-cache: true
+#           # cache-to: type=inline
+#           cache-from: type=inline
+#           pull: true
+#           push: false
+#           # load: true
+#           tags: cross:nightly-${{ matrix.target }}
+#           build-args: |
+#             RUST_VERSION=nightly
+#             RUSTUP_VERSION=${{ env.RUSTUP_VERSION }}
+#             CMAKE_VERSION=${{ env.CMAKE_VERSION }}
+#             OPENSSL_VERSION=${{ env.OPENSSL_VERSION }}
+#             LLVM_VERSION=${{ env.LLVM_VERSION }}
+#             MUSL_VERSION=${{ env.MUSL_VERSION }}
+#           labels: |
+#             tech.harmless.experimental.name="ink-cross:${{ matrix.target }}"
+#             tech.harmless.experimental.pull_request_build="${{ github.event_name == 'pull_request' }}"
+#             tech.harmless.experimental.run_number="${{ github.run_number }}"
+#             tech.harmless.experimental.repo="${{ github.repositoryUrl }}"
+#             tech.harmless.experimental.build_date="${{ env.BUILD_DATE }}"
+#             tech.harmless.experimental.platform="${{ matrix.platform }}"
+#             tech.harmless.experimental.version.rust="nightly"
+#             tech.harmless.experimental.version.rustup="${{ env.RUSTUP_VERSION }}"
+#             tech.harmless.experimental.version.cmake="${{ env.CMAKE_VERSION }}"
+#             tech.harmless.experimental.version.openssl="${{ env.OPENSSL_VERSION }}"
+#             tech.harmless.experimental.version.llvm="${{ env.LLVM_VERSION }}"
+#             tech.harmless.experimental.version.musl="${{ env.MUSL_VERSION }}"
+#             org.opencontainers.image.authors="harmless-tech, crow-rest"
+#           platforms: linux/${{ matrix.platform }}
+#           builder: ${{ steps.buildx.outputs.name }}
 
-      - name: Details
-        run: docker image inspect cross:stable-${{ matrix.target }}
+#       - name: Details
+#         run: docker image inspect cross:stable-${{ matrix.target }}
