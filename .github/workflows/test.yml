@@ -13,9 +13,9 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - dockerArch: "amd64"
-            sysArch: "x86_64-linux"
-            crossArch: "aarch64-unknown-linux-gnu"
+          # - dockerArch: "amd64"
+          #   sysArch: "x86_64-linux"
+          #   crossArch: "aarch64-unknown-linux-gnu"
           - dockerArch: "amd64"
             sysArch: "x86_64-linux"
             crossArch: "x86_64-unknown-linux-gnu"
