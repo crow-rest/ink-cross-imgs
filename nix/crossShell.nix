@@ -5,5 +5,6 @@ with import <nixpkgs> {
 };
 
 mkShell {
-  buildInputs = [ zlib ]; # your dependencies here
+  nativeBuildInputs = [];
+  buildInputs = [ zlib openssl_3_1 gcc12 ];
 }
