@@ -8,6 +8,19 @@ pkgs.dockerTools.buildImage {
   created = "now";
 
   architecture = "amd64";
+  copyToRoot = pkgs.buildEnv {
+    name = "image-root";
+    paths = [
+      pkgs.bash
+      pkgs.curl
+
+      pkgs.pkg-config
+      pkgs.cmake
+      pkgs.ninja
+    ];
+    pathsToLink = [ "/bin" ];
+  };
+
   config = {
     CMD = [ "/bin/bash" ];
     WorkingDir = "/project";
