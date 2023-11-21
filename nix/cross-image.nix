@@ -30,3 +30,17 @@ let
     ]) images);
   imageNames = builtins.concatStringsSep " "
     (map ({ arch, image, tag }: "${name}:${tag}") images);
+
+in pkgs.writeTextFile {
+  inherit name;
+  text = ''
+    #!${pkgs.stdenv.shell}
+    set -euxo pipefail
+    docker=${pkgs.docker}/bin/docker
+    ${loadAndPush}
+    $docker manifest create --amend ${name}:${tagBase} ${imageNames}
+    $docker manifest push ${name}:${tagBase}
+  '';
+  executable = true;
+  destination = "/bin/push";
+}
