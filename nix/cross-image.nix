@@ -1,15 +1,20 @@
-{ nixpkgs ? import <nixpkgs>
+{ 
+  dockerArch ? "amd64"
+, sysArch ? "x86_64-unknown-linux-gnu"
+, crossArch ? "aarch64-unknown-linux-gnu"
+
+, nixpkgs ? import <nixpkgs>
 , pkgs ? import <nixpkgs> { }
-, pkgsLinux ? import <nixpkgs> { system = "x86_64-linux"; }
+, pkgsLinux ? import <nixpkgs> { system = sysArch; }
 }:
 
 rec {
   base = pkgs.dockerTools.buildImage {
-    name = "to-build-x86_64";
+    name = "to-build" + dockerArch;
     tag = "base";
     created = "now";
 
-    architecture = "amd64";
+    architecture = dockerArch;
     copyToRoot = pkgs.buildEnv {
       name = "image-root-base";
       paths = [
@@ -29,13 +34,13 @@ rec {
   };
 
   nativeTools = pkgs.dockerTools.buildImage {
-    name = "to-build-x86_64";
+    name = "to-build" + dockerArch;
     tag = "nativeTools";
     created = "now";
 
     fromImage = base;
 
-    architecture = "amd64";
+    architecture = dockerArch;
     copyToRoot = pkgs.buildEnv {
       name = "image-root-nativeTools";
       paths = [
@@ -56,15 +61,15 @@ rec {
   };
 
   cross = 
-  let crossPkgs = (nixpkgs { crossSystem = { config = "aarch64-unknown-linux-gnu"; }; }).pkgs;
+  let crossPkgs = (nixpkgs { crossSystem = { config = crossArch; }; }).pkgs;
   in pkgs.dockerTools.buildImage {
-      name = "to-build-x86_64";
+      name = "to-build" + dockerArch;
       tag = "cross";
       created = "now";
 
       fromImage = nativeTools;
 
-      architecture = "amd64";
+      architecture = dockerArch;
       copyToRoot = pkgs.buildEnv {
         name = "image-root-cross";
         paths = [
