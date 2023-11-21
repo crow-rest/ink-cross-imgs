@@ -3,31 +3,59 @@
 , pkgsCross ? import <nixpkgs>
 }:
 
-let cross = pkgsCross.aarch64-multiplatform;
-in pkgs.dockerTools.buildImage {
-  name = "to-build";
-  tag = "no-push";
-  created = "now";
+rec {
+  base = pkgs.dockerTools.buildImage {
+    name = "to-build";
+    tag = "no-push";
+    created = "now";
 
-  architecture = "amd64";
-  copyToRoot = pkgs.buildEnv {
-    name = "image-root";
-    paths = [
-      pkgsLinux.bash
-      pkgsLinux.curl
+    architecture = "amd64";
+    copyToRoot = pkgs.buildEnv {
+      name = "image-root";
+      paths = [
+        pkgsLinux.bash
+        pkgsLinux.curl
 
-      pkgsLinux.pkg-config
-      pkgsLinux.cmake
-      pkgsLinux.ninja
-    ];
-    pathsToLink = [ "/bin" ];
+        pkgsLinux.pkg-config
+        pkgsLinux.cmake
+        pkgsLinux.ninja
+      ];
+      pathsToLink = [ "/bin" ];
+    };
+
+    config = {
+      CMD = [ "/bin/bash" ];
+      WorkingDir = "/project";
+    };
+
+    diskSize = 10240;
+    buildVMMemorySize = 5120;
   };
 
-  config = {
-    CMD = [ "/bin/bash" ];
-    WorkingDir = "/project";
-  };
+  cross =
+    let crossPkgs = pkgsCross.aarch64-multiplatform;
+    in pkgs.dockerTools.buildImage {
+      name = "to-build";
+      tag = "no-push";
+      created = "now";
 
-  diskSize = 10240;
-  buildVMMemorySize = 5120;
+      fromImage = base;
+
+      architecture = "amd64";
+      copyToRoot = pkgs.buildEnv {
+        name = "image-root";
+        paths = [
+          crossPkgs.gcc12
+        ];
+        pathsToLink = [ "/bin" ];
+      };
+
+      config = {
+        CMD = [ "/bin/bash" ];
+        WorkingDir = "/project";
+      };
+
+      diskSize = 10240;
+      buildVMMemorySize = 5120;
+    };
 }
