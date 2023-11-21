@@ -37,7 +37,7 @@ rec {
 
     architecture = "amd64";
     copyToRoot = pkgs.buildEnv {
-      name = "image-root-base";
+      name = "image-root-nativeTools";
       paths = [
         pkgsLinux.pkg-config
         pkgsLinux.cmake
@@ -55,9 +55,7 @@ rec {
     buildVMMemorySize = 5120;
   };
 
-  cross =
-    let crossPkgs = pkgsCross.aarch64-unknown-linux-gnu;
-    in pkgs.dockerTools.buildImage {
+  cross = pkgs.dockerTools.buildImage {
       name = "to-build-x86_64";
       tag = "cross";
       created = "now";
@@ -66,15 +64,9 @@ rec {
 
       architecture = "amd64";
       copyToRoot = pkgs.buildEnv {
-        name = "image-root";
+        name = "image-root-cross";
         paths = [
-          pkgsLinux.bash
-          pkgsLinux.coreutils
-
-          pkgsLinux.cmake
-          pkgsLinux.ninja
-
-          # crossPkgs.gcc12
+          pkgsCross.gcc12
         ];
         pathsToLink = [ "/bin" ];
       };
