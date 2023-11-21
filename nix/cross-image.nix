@@ -1,6 +1,6 @@
 { 
   dockerArch ? "amd64"
-, sysArch ? "x86_64-unknown-linux-gnu"
+, sysArch ? "x86_64-linux"
 , crossArch ? "aarch64-unknown-linux-gnu"
 
 , nixpkgs ? import <nixpkgs>
