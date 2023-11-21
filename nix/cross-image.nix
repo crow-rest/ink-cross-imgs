@@ -43,9 +43,10 @@ rec {
 
       architecture = "amd64";
       copyToRoot = pkgs.buildEnv {
-        name = "image-root-cross";
+        name = "image-root";
         paths = [
           pkgsLinux.bash
+          pkgsLinux.coreutils
 
           pkgsLinux.cmake
           pkgsLinux.ninja
