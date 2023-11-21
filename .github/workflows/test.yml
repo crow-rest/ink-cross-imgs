@@ -15,5 +15,5 @@ jobs:
       - uses: cachix/install-nix-action@v22
         with:
           nix_path: nixpkgs=channel:nixos-unstable
-      - run: nix run -f nix/cross-image.nix
+      - run: nix-build nix/cross-image.nix
       - run: docker images
