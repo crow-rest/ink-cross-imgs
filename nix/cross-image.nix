@@ -7,7 +7,7 @@ pkgs.dockerTools.buildImage {
   tag = "no-push";
   created = "now";
 
-  architecture = [ "aarch64" "x86_64" ];
+  architecture = "amd64";
   config = {
     CMD = [ "/bin/bash" ];
     WorkingDir = "/project";
