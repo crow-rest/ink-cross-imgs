@@ -55,7 +55,7 @@ rec {
   };
 
   cross = 
-  let crossPkgs = (nixpkgs { crossSystem = { config = "aarch64-unknown-linux-gnu"; }; }).pkgsStatic;
+  let crossPkgs = (pkgs { crossSystem = { config = "aarch64-unknown-linux-gnu"; }; }).pkgs;
   in pkgs.dockerTools.buildImage {
       name = "to-build-x86_64";
       tag = "cross";
