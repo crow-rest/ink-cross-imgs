@@ -19,3 +19,7 @@ jobs:
       - run: nix-build nix/cross-image.nix
       - run: docker load < result
       - run: docker images
+      - uses: actions/upload-artifact@v3
+        with:
+          name: image
+          path: result
