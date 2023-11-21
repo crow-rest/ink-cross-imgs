@@ -57,7 +57,7 @@ rec {
       paths = [
         pkgsLinux.autoconf
         pkgsLinux.automake
-        pkgsLinux.make
+        pkgsLinux.gnumake
         pkgsLinux.libtool
         pkgsLinux.pkg-config
         pkgsLinux.cmake
