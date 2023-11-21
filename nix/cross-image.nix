@@ -4,33 +4,33 @@
 }:
 
 rec {
-  base = pkgs.dockerTools.buildImage {
-    name = "to-build";
-    tag = "no-push";
-    created = "now";
+  # base = pkgs.dockerTools.buildImage {
+  #   name = "to-build";
+  #   tag = "no-push";
+  #   created = "now";
 
-    architecture = "amd64";
-    copyToRoot = pkgs.buildEnv {
-      name = "image-root-base";
-      paths = [
-        pkgsLinux.bash
-        pkgsLinux.curl
+  #   architecture = "amd64";
+  #   copyToRoot = pkgs.buildEnv {
+  #     name = "image-root-base";
+  #     paths = [
+  #       pkgsLinux.bash
+  #       pkgsLinux.curl
 
-        pkgsLinux.pkg-config
-        pkgsLinux.cmake
-        pkgsLinux.ninja
-      ];
-      pathsToLink = [ "/bin" ];
-    };
+  #       pkgsLinux.pkg-config
+  #       pkgsLinux.cmake
+  #       pkgsLinux.ninja
+  #     ];
+  #     pathsToLink = [ "/bin" ];
+  #   };
 
-    config = {
-      CMD = [ "/bin/bash" ];
-      WorkingDir = "/project";
-    };
+  #   config = {
+  #     CMD = [ "/bin/bash" ];
+  #     WorkingDir = "/project";
+  #   };
 
-    diskSize = 10240;
-    buildVMMemorySize = 5120;
-  };
+  #   diskSize = 10240;
+  #   buildVMMemorySize = 5120;
+  # };
 
   cross =
     let crossPkgs = pkgsCross.aarch64-multiplatform;
@@ -39,12 +39,15 @@ rec {
       tag = "no-push";
       created = "now";
 
-      fromImage = base;
+      # fromImage = base;
 
       architecture = "amd64";
       copyToRoot = pkgs.buildEnv {
         name = "image-root-cross";
         paths = [
+          pkgsLinux.cmake
+          pkgsLinux.ninja
+
           crossPkgs.gcc12
         ];
         pathsToLink = [ "/bin" ];
