@@ -35,7 +35,7 @@ rec {
   cross =
     let crossPkgs = pkgsCross.aarch64-unknown-linux-gnu;
     in pkgs.dockerTools.buildImage {
-      name = "to-build";
+      name = "to-build-x86_64";
       tag = "no-push";
       created = "now";
 
@@ -51,7 +51,7 @@ rec {
           pkgsLinux.cmake
           pkgsLinux.ninja
 
-          # crossPkgs.gcc12
+          crossPkgs.gcc12
         ];
         pathsToLink = [ "/bin" ];
       };
