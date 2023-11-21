@@ -5,4 +5,6 @@
 *.tmp
 *.log
 
+nix/result
+
 .DS_Store
