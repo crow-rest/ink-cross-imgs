@@ -1,6 +1,5 @@
 { pkgs ? import <nixpkgs> { }
 , pkgsLinux ? import <nixpkgs> { system = "x86_64-linux"; }
-, pkgsCross ? import <nixpkgs> { crossSystem = "aarch64-unknown-linux-gnu"; }
 }:
 
 rec {
@@ -55,7 +54,9 @@ rec {
     buildVMMemorySize = 5120;
   };
 
-  cross = pkgs.dockerTools.buildImage {
+  cross = 
+  let crossPkgs = (nixpkgs { crossSystem = { config = "aarch64-unknown-linux-gnu"; }; }).pkgsStatic;
+  in pkgs.dockerTools.buildImage {
       name = "to-build-x86_64";
       tag = "cross";
       created = "now";
