@@ -1,8 +1,10 @@
 { pkgs ? import <nixpkgs> { }
 , pkgsLinux ? import <nixpkgs> { system = "x86_64-linux"; }
+, pkgsCross ? import <nixpkgs>
 }:
 
-pkgs.dockerTools.buildImage {
+let cross = pkgs.pkgsCross.aarch64-multiplatform;
+in pkgs.dockerTools.buildImage {
   name = "to-build";
   tag = "no-push";
   created = "now";
@@ -11,12 +13,12 @@ pkgs.dockerTools.buildImage {
   copyToRoot = pkgs.buildEnv {
     name = "image-root";
     paths = [
-      pkgs.bash
-      pkgs.curl
+      pkgsLinux.bash
+      pkgsLinux.curl
 
-      pkgs.pkg-config
-      pkgs.cmake
-      pkgs.ninja
+      pkgsLinux.pkg-config
+      pkgsLinux.cmake
+      pkgsLinux.ninja
     ];
     pathsToLink = [ "/bin" ];
   };
