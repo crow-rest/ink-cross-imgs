@@ -16,7 +16,7 @@ jobs:
         with:
           install_url: https://releases.nixos.org/nix/nix-2.19.0/install
           nix_path: nixpkgs=channel:nixos-unstable
-      - run: nix-build nix/cross-image.nix
+      - run: nix-build nix/cross-image.nix -A cross
       - run: docker load < result
       - run: docker images
       - uses: actions/upload-artifact@v3

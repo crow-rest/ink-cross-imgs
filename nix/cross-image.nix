@@ -11,7 +11,7 @@ rec {
 
     architecture = "amd64";
     copyToRoot = pkgs.buildEnv {
-      name = "image-root";
+      name = "image-root-base";
       paths = [
         pkgsLinux.bash
         pkgsLinux.curl
@@ -43,7 +43,7 @@ rec {
 
       architecture = "amd64";
       copyToRoot = pkgs.buildEnv {
-        name = "image-root";
+        name = "image-root-cross";
         paths = [
           crossPkgs.gcc12
         ];
