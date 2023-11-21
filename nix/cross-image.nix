@@ -67,7 +67,7 @@ rec {
       copyToRoot = pkgs.buildEnv {
         name = "image-root-cross";
         paths = [
-          pkgsCross.gcc12
+          crossPkgs.gcc12
         ];
         pathsToLink = [ "/bin" ];
       };
