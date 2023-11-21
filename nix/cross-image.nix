@@ -8,6 +8,8 @@
 , pkgsLinux ? import <nixpkgs> { system = sysArch; }
 }:
 
+# TODO: Need to alias build tools on their native platforms.
+
 rec {
   base = pkgs.dockerTools.buildImage {
     name = "to-build" + dockerArch;
@@ -83,7 +85,7 @@ rec {
         WorkingDir = "/project";
       };
 
-      diskSize = 10240;
-      buildVMMemorySize = 5120;
+      diskSize = 10240; # TODO: Move to var
+      buildVMMemorySize = 5120; # TODO: Move to var
     };
 }
