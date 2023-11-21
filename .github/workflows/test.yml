@@ -15,13 +15,16 @@ jobs:
         include:
           - dockerArch: "amd64"
             sysArch: "x86_64-linux"
-            crossArch: "aarch64-unknown-linux-gnu"
+            sysArchFull: "x86_64-unknown-linux-gnu"
+            crossArch: "aarch64-unknown-linux-musl"
           - dockerArch: "amd64"
             sysArch: "x86_64-linux"
-            crossArch: "x86_64-unknown-linux-gnu"
+            sysArchFull: "x86_64-unknown-linux-gnu"
+            crossArch: "x86_64-unknown-linux-musl"
           - dockerArch: "arm64"
             sysArch: "aarch64-linux"
-            crossArch: "aarch64-unknown-linux-gnu"
+            sysArchFull: "aarch64-unknown-linux-gnu"
+            crossArch: "aarch64-unknown-linux-musl"
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -33,10 +36,11 @@ jobs:
           nix-build nix/cross-image.nix -A cross \
             --argstr dockerArch ${{ matrix.dockerArch }} \
             --argstr sysArch ${{ matrix.sysArch }} \
+            --argstr sysArchFull ${{ matrix.sysArchFull }} \
             --argstr crossArch ${{ matrix.crossArch }}
       - run: docker load < result
       - run: docker images
       - uses: actions/upload-artifact@v3
         with:
-          name: image-${{ matrix.dockerArch }}-${{ matrix.sysArch }}-${{ matrix.crossArch }}
+          name: image---${{ matrix.sysArchFull }}---${{ matrix.crossArch }}
           path: result

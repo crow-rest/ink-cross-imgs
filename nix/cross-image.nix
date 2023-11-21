@@ -1,7 +1,11 @@
 { 
   dockerArch ? "amd64"
 , sysArch ? "x86_64-linux"
-, crossArch ? "aarch64-unknown-linux-gnu"
+, sysArchFull ? "x86_64-unknown-linux-gnu"
+, crossArch ? "aarch64-unknown-linux-musl"
+
+, sizeDisk ? 10240
+, sizeBuildVMMem ? 5120
 
 , nixpkgs ? import <nixpkgs>
 , pkgs ? import <nixpkgs> { }
@@ -12,7 +16,7 @@
 
 rec {
   base = pkgs.dockerTools.buildImage {
-    name = "to-build" + dockerArch;
+    name = "to-build-" + dockerArch;
     tag = "base";
     created = "now";
 
@@ -21,7 +25,12 @@ rec {
       name = "image-root-base";
       paths = [
         pkgsLinux.bash
+        pkgsLinux.cacert
         pkgsLinux.curl
+        pkgsLinux.xz
+        pkgsLinux.git
+        pkgsLinux.perl
+        pkgsLinux.lsb-release
       ];
       pathsToLink = [ "/bin" ];
     };
@@ -31,12 +40,12 @@ rec {
       WorkingDir = "/project";
     };
 
-    diskSize = 10240;
-    buildVMMemorySize = 5120;
+    diskSize = sizeDisk;
+    buildVMMemorySize = sizeBuildVMMem;
   };
 
   nativeTools = pkgs.dockerTools.buildImage {
-    name = "to-build" + dockerArch;
+    name = "to-build-" + dockerArch;
     tag = "nativeTools";
     created = "now";
 
@@ -46,6 +55,10 @@ rec {
     copyToRoot = pkgs.buildEnv {
       name = "image-root-nativeTools";
       paths = [
+        pkgsLinux.autoconf
+        pkgsLinux.automake
+        pkgsLinux.make
+        pkgsLinux.libtool
         pkgsLinux.pkg-config
         pkgsLinux.cmake
         pkgsLinux.ninja
@@ -58,14 +71,14 @@ rec {
       WorkingDir = "/project";
     };
 
-    diskSize = 10240;
-    buildVMMemorySize = 5120;
+    diskSize = sizeDisk;
+    buildVMMemorySize = sizeBuildVMMem;
   };
 
   cross = 
   let crossPkgs = (nixpkgs { crossSystem = { config = crossArch; }; }).pkgs;
   in pkgs.dockerTools.buildImage {
-      name = "to-build" + dockerArch;
+      name = "to-build-" + dockerArch;
       tag = "cross";
       created = "now";
 
@@ -75,7 +88,11 @@ rec {
       copyToRoot = pkgs.buildEnv {
         name = "image-root-cross";
         paths = [
+          crossPkgs.binutils
           crossPkgs.gcc12
+
+          crossPkgs.musl
+          crossPkgs.openssl_3_1
         ];
         pathsToLink = [ "/bin" ];
       };
@@ -85,7 +102,9 @@ rec {
         WorkingDir = "/project";
       };
 
-      diskSize = 10240; # TODO: Move to var
-      buildVMMemorySize = 5120; # TODO: Move to var
+      diskSize = sizeDisk;
+      buildVMMemorySize = sizeBuildVMMem;
     };
 }
+
+# TODO: Rust and cargo-prebuilt layer.
