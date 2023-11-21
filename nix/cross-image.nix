@@ -3,7 +3,7 @@
 , pkgsCross ? import <nixpkgs>
 }:
 
-let cross = pkgs.pkgsCross.aarch64-multiplatform;
+let cross = pkgsCross.aarch64-multiplatform;
 in pkgs.dockerTools.buildImage {
   name = "to-build";
   tag = "no-push";
