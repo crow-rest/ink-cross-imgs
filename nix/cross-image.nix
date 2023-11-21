@@ -48,7 +48,7 @@ rec {
           pkgsLinux.cmake
           pkgsLinux.ninja
 
-          crossPkgs.gcc12
+          # crossPkgs.gcc12
         ];
         pathsToLink = [ "/bin" ];
       };
