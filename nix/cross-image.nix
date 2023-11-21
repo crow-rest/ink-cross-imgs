@@ -33,7 +33,7 @@ rec {
   # };
 
   cross =
-    let crossPkgs = pkgsCross.aarch64-multiplatform;
+    let crossPkgs = pkgsCross.aarch64-unknown-linux-gnu;
     in pkgs.dockerTools.buildImage {
       name = "to-build";
       tag = "no-push";
@@ -45,6 +45,8 @@ rec {
       copyToRoot = pkgs.buildEnv {
         name = "image-root-cross";
         paths = [
+          pkgsLinux.bash
+
           pkgsLinux.cmake
           pkgsLinux.ninja
 
