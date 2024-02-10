@@ -1,3 +1,9 @@
+### Plan
+  # Use nixos docker container in sysArch.
+  # Update channels and stuff then build this cross image.
+  # Test cross image?
+  # Add both arch images together and push.
+
 { 
   dockerArch ? "amd64"
 , sysArch ? "x86_64-linux"
